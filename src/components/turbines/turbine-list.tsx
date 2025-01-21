@@ -49,21 +49,21 @@ import {
 
 const fileCategories = {
   technical: [
-    { id: 1, name: "Technical Specifications.pdf", type: "pdf", size: "2.4 MB", lastModified: "2024-02-15" },
-    { id: 2, name: "Assembly Instructions.pdf", type: "pdf", size: "3.1 MB", lastModified: "2024-02-14" },
-    { id: 3, name: "Component Diagrams.dwg", type: "cad", size: "5.7 MB", lastModified: "2024-02-13" },
+    { id: 1, name: "Technical Specifications.pdf", type: "pdf", size: "2.4 MB", lastModified: "2025-01-15" },
+    { id: 2, name: "Assembly Instructions.pdf", type: "pdf", size: "3.1 MB", lastModified: "2025-01-14" },
+    { id: 3, name: "Component Diagrams.dwg", type: "cad", size: "5.7 MB", lastModified: "2025-01-13" },
   ],
   certification: [
-    { id: 4, name: "Safety Certification.pdf", type: "pdf", size: "1.2 MB", lastModified: "2024-02-12" },
-    { id: 5, name: "Quality Assurance Report.xlsx", type: "spreadsheet", size: "890 KB", lastModified: "2024-02-11" },
+    { id: 4, name: "Safety Certification.pdf", type: "pdf", size: "1.2 MB", lastModified: "2025-01-12" },
+    { id: 5, name: "Quality Assurance Report.xlsx", type: "spreadsheet", size: "890 KB", lastModified: "2025-01-11" },
   ],
   maintenance: [
-    { id: 6, name: "Maintenance Schedule.xlsx", type: "spreadsheet", size: "1.1 MB", lastModified: "2024-02-10" },
-    { id: 7, name: "Service Manual.pdf", type: "pdf", size: "4.2 MB", lastModified: "2024-02-09" },
+    { id: 6, name: "Maintenance Schedule.xlsx", type: "spreadsheet", size: "1.1 MB", lastModified: "2025-01-10" },
+    { id: 7, name: "Service Manual.pdf", type: "pdf", size: "4.2 MB", lastModified: "2025-01-09" },
   ],
   operational: [
-    { id: 8, name: "Performance Data.xlsx", type: "spreadsheet", size: "2.8 MB", lastModified: "2024-02-08" },
-    { id: 9, name: "Configuration Settings.json", type: "json", size: "450 KB", lastModified: "2024-02-07" },
+    { id: 8, name: "Performance Data.xlsx", type: "spreadsheet", size: "2.8 MB", lastModified: "2025-01-08" },
+    { id: 9, name: "Configuration Settings.json", type: "json", size: "450 KB", lastModified: "2025-01-07" },
   ],
 }
 
@@ -83,7 +83,7 @@ const turbines = [
       ratedSpeed: "12 m/s",
       cutOutSpeed: "25 m/s",
     },
-    lastUpdated: "2024-02-15",
+    lastUpdated: "2025-01-15",
   },
   {
     id: "2",
@@ -99,7 +99,7 @@ const turbines = [
       ratedSpeed: "13 m/s",
       cutOutSpeed: "27 m/s",
     },
-    lastUpdated: "2024-02-14",
+    lastUpdated: "2025-01-14",
   },
   {
     id: "3",
@@ -115,7 +115,7 @@ const turbines = [
       ratedSpeed: "11.5 m/s",
       cutOutSpeed: "25 m/s",
     },
-    lastUpdated: "2024-02-13",
+    lastUpdated: "2025-01-13",
   }
 ]
 

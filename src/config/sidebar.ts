@@ -61,21 +61,8 @@ export const sidebarConfig: SidebarSection[] = [
       {
         label: "Forms",
         icon: FormInput,
-        isCollapsible: true,
-        items: [
-          {
-            label: "AWP",
-            href: "/dashboard/forms/awp",
-          },
-          {
-            label: "WI",
-            href: "/dashboard/forms/wi",
-          },
-          {
-            label: "MS",
-            href: "/dashboard/forms/ms",
-          },
-        ],
+        isDisabled: true,
+        badge: "Coming Soon",
       },
     ],
   },

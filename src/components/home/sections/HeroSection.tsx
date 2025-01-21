@@ -56,8 +56,8 @@ export function HeroSection() {
    
             <div className="relative w-full h-full rounded-3xl overflow-hidden border border-[#8ec2b3]/20">
               <Image
-                src="/wind-turbine-hero.png"
-                alt="Wind Turbine Illustration"
+                src="/windmill2.webp"
+                alt="Wind Turbine"
                 fill
                 className="object-cover"
                 priority

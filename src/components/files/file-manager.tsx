@@ -44,14 +44,14 @@ const files = [
     category: "projects",
     project: "North Sea Wind Farm",
     uploadedBy: "John Doe",
-    uploadedAt: "2024-03-15T10:30:00",
+    uploadedAt: "2025-01-15T10:30:00",
     status: "accepted",
     version: "2.0",
     comments: [
       {
         user: "Sarah Smith",
         text: "Approved - meets all requirements",
-        timestamp: "2024-03-16T14:20:00"
+        timestamp: "2025-01-16T14:20:00"
       }
     ]
   },
@@ -63,33 +63,33 @@ const files = [
     category: "sites",
     project: "Baltic Sea Platform",
     uploadedBy: "Emma Wilson",
-    uploadedAt: "2024-03-14T09:15:00",
+    uploadedAt: "2025-01-14T09:15:00",
     status: "in-review",
     version: "1.0",
     comments: [
       {
         user: "Michael Chen",
         text: "Reviewing section 3.2 - will provide feedback",
-        timestamp: "2024-03-15T11:30:00"
+        timestamp: "2025-01-15T11:30:00"
       }
     ]
   },
   {
     id: "3",
-    name: "Maintenance_Schedule_2024.xlsx",
+    name: "Maintenance_Schedule_2025.xlsx",
     type: "spreadsheet",
     size: "1.2 MB",
     category: "turbines",
     project: "Irish Sea Array",
     uploadedBy: "Robert Johnson",
-    uploadedAt: "2024-03-13T15:45:00",
+    uploadedAt: "2025-01-13T15:45:00",
     status: "accepted",
     version: "1.1",
     comments: [
       {
         user: "David Brown",
-        text: "Schedule approved for Q2 2024",
-        timestamp: "2024-03-14T10:20:00"
+        text: "Schedule approved for Q2 2025",
+        timestamp: "2025-01-14T10:20:00"
       }
     ]
   },
@@ -101,33 +101,33 @@ const files = [
     category: "platforms",
     project: "North Sea Wind Farm",
     uploadedBy: "Alice Cooper",
-    uploadedAt: "2024-03-12T14:30:00",
+    uploadedAt: "2025-01-12T14:30:00",
     status: "rejected",
     version: "3.2",
     comments: [
       {
         user: "Tom Wilson",
         text: "Design needs revision - check structural calculations",
-        timestamp: "2024-03-13T09:45:00"
+        timestamp: "2025-01-13T09:45:00"
       }
     ]
   },
   {
     id: "5",
-    name: "Safety_Protocols_2024.pdf",
+    name: "Safety_Protocols_2025.pdf",
     type: "pdf",
     size: "3.1 MB",
     category: "projects",
     project: "Baltic Sea Platform",
     uploadedBy: "Sarah Johnson",
-    uploadedAt: "2024-03-11T11:20:00",
+    uploadedAt: "2025-01-11T11:20:00",
     status: "accepted",
     version: "2.1",
     comments: [
       {
         user: "Mark Davis",
         text: "Protocols meet all safety requirements",
-        timestamp: "2024-03-12T16:15:00"
+        timestamp: "2025-01-12T16:15:00"
       }
     ]
   }

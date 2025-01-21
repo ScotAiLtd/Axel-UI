@@ -16,14 +16,14 @@ const tasks = [
     title: "Review Maintenance Schedule",
     status: "High",
     assignee: "John Doe",
-    dueDate: "2024-01-30",
+    dueDate: "2025-01-03",
   },
   {
     id: "TASK-1235",
     title: "Update Safety Protocols",
     status: "Medium",
     assignee: "Jane Smith",
-    dueDate: "2024-02-01",
+    dueDate: "2025-01-20",
   },
   
 ]

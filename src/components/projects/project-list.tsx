@@ -31,7 +31,7 @@ const projects = [
     completion: 65,
     budget: "€380M",
     timeline: {
-      start: "2024-01-15",
+      start: "2025-01-15",
       estimated_completion: "2025-06-30"
     },
     team: {
@@ -49,7 +49,7 @@ const projects = [
     completion: 25,
     budget: "€420M",
     timeline: {
-      start: "2024-03-01",
+      start: "2025-01-01",
       estimated_completion: "2025-09-30"
     },
     team: {
@@ -67,7 +67,7 @@ const projects = [
     completion: 10,
     budget: "€290M",
     timeline: {
-      start: "2024-04-15",
+      start: "2025-01-15",
       estimated_completion: "2025-08-30"
     },
     team: {

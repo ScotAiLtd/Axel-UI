@@ -67,7 +67,6 @@ export function AboutSection() {
             </div>
           </motion.div>
 
-        
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -76,24 +75,20 @@ export function AboutSection() {
             className="relative"
           >
             <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden">
-            
               <div className="absolute inset-0 bg-gradient-to-br from-[#8ec2b3]/20 via-transparent to-[#8ec2b3]/10 rounded-2xl" />
               <div className="absolute -inset-1 bg-gradient-to-br from-[#8ec2b3]/20 via-transparent to-[#8ec2b3]/10 blur-2xl opacity-50" />
               
-              
               <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#8ec2b3]/20">
                 <Image
-                  src="/about-wind-farm.jpg" 
+                  src="/windfarm.webp"
                   alt="Wind Farm"
                   fill
                   className="object-cover"
                 />
                 
-           
                 <div className="absolute top-4 left-4 w-24 h-24 bg-[#8ec2b3]/10 rounded-full blur-xl animate-pulse" />
                 <div className="absolute bottom-4 right-4 w-32 h-32 bg-[#8ec2b3]/15 rounded-full blur-2xl animate-pulse delay-500" />
                 
-           
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>
             </div>

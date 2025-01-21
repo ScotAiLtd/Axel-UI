@@ -9,7 +9,7 @@ const recentApprovals = [
     approver: "John Smith",
     approverImage: "/avatars/01.png",
     status: "Approved",
-    date: "2024-01-28",
+    date: "2025-01-21",
   },
   {
     id: "2",
@@ -17,7 +17,7 @@ const recentApprovals = [
     approver: "Emma Wilson",
     approverImage: "/avatars/02.png",
     status: "Pending",
-    date: "2024-01-27",
+    date: "2025-01-21",
   },
  
 ]

@@ -35,8 +35,8 @@ const tickets = [
     status: "open",
     priority: "high",
     category: "technical",
-    created: new Date(2024, 2, 15),
-    lastUpdate: new Date(2024, 2, 16),
+    created: new Date(2025, 1, 15),
+    lastUpdate: new Date(2025, 1, 16),
   },
   
 ]
