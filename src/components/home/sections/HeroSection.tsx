@@ -17,7 +17,7 @@ export function HeroSection() {
           className="flex-1 text-center lg:text-left"
         >
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            AI-Powered Wind Turbine Documentation
+            AI-Powered Wind Turbine Documentations
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
             Streamline your wind turbine documentation process with advanced AI. 
