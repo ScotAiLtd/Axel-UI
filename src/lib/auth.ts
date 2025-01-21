@@ -1,15 +1,29 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
-import type { AuthConfig } from "@auth/core";
-import Google from "next-auth/providers/google";
-import type { Session, User } from "next-auth";
+import { AuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import type { DefaultSession } from "next-auth";
 
-export const authConfig = {
+// Extend the Session type to include user.id
+interface ExtendedSession extends DefaultSession {
+  user: {
+    id: string
+  } & DefaultSession["user"]
+}
+
+export const authConfig: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    Google({
+    GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   pages: {
@@ -17,9 +31,9 @@ export const authConfig = {
     signOut: "/",
   },
   callbacks: {
-    session({ session, user }: { session: Session; user: User }) {
-      if (session.user) {
-        session.user.id = user.id;
+    session({ session, user }) {
+      if (session.user && user?.id) {
+        (session.user as ExtendedSession["user"]).id = user.id;
       }
       return session;
     },
@@ -29,4 +43,4 @@ export const authConfig = {
       return baseUrl;
     },
   },
-} satisfies AuthConfig; 
+}; 

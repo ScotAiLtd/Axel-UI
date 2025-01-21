@@ -144,8 +144,11 @@ export function PlatformList({ className }: PlatformListProps) {
 
                     <div className="flex items-center justify-between pt-2 border-t">
                       <Badge 
-                        variant={platform.status === "operational" ? "success" : "warning"}
-                        className="capitalize"
+                        variant={platform.status === "operational" ? "default" : "secondary"}
+                        className={cn(
+                          "capitalize",
+                          platform.status === "operational" ? "bg-green-500/10 text-green-500 hover:bg-green-500/20" : "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20"
+                        )}
                       >
                         {platform.status}
                       </Badge>

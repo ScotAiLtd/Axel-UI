@@ -2,65 +2,58 @@
 
 import { useState } from "react"
 import { ChevronDown, ChevronRight } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { SidebarItem } from "@/types/sidebar"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { SidebarItem } from "@/types/sidebar"
 
 interface CollapsibleSectionProps {
-  item: SidebarItem
-  isExpanded: boolean
+  item: SidebarItem;
+  isExpanded: boolean;
+  pathname: string;
 }
 
-export function CollapsibleSection({ item, isExpanded }: CollapsibleSectionProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const pathname = usePathname()
-
-  if (!item.items) return null
+export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
+  item,
+  isExpanded,
+  pathname
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div>
-      <Button
-        variant="ghost"
-        className={cn(
-          "w-full justify-between font-semibold",
-          isOpen && "bg-accent/50"
-        )}
+      <button
         onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "flex w-full items-center justify-between py-2 px-3 rounded-md hover:bg-accent",
+          pathname.startsWith(item.href || '') && "bg-accent"
+        )}
       >
-        <div className="flex items-center gap-2">
-          {item.icon && <item.icon className="h-4 w-4" />}
+        <div className="flex items-center">
+          {item.icon && <item.icon className="mr-2 h-4 w-4" />}
           {isExpanded && <span>{item.label}</span>}
         </div>
         {isExpanded && (
-          <div className="text-muted-foreground">
-            {isOpen ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </div>
+          <ChevronDown
+            className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")}
+          />
         )}
-      </Button>
-      {isOpen && isExpanded && (
-        <div className="ml-4 mt-1 space-y-1 border-l pl-2">
+      </button>
+      {isOpen && isExpanded && item.items && (
+        <div className="ml-4 mt-2 space-y-1">
           {item.items.map((subItem) => (
-            <Link key={subItem.href} href={subItem.href || "#"}>
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start",
-                  pathname === subItem.href && "bg-accent/50"
-                )}
-              >
-                {subItem.icon && <subItem.icon className="mr-2 h-4 w-4" />}
-                <span>{subItem.label}</span>
-              </Button>
+            <Link
+              key={subItem.href}
+              href={subItem.href || ''}
+              className={cn(
+                "block py-2 px-3 rounded-md hover:bg-accent",
+                pathname === subItem.href && "bg-accent"
+              )}
+            >
+              {subItem.label}
             </Link>
           ))}
         </div>
       )}
     </div>
-  )
-} 
+  );
+}; 

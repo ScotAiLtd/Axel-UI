@@ -3,14 +3,21 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { PanelLeftClose, PanelRightClose } from "lucide-react"
+import { PanelLeft, PanelRightClose } from "lucide-react"
 import { useState } from "react"
 import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { CollapsibleSection } from "./CollapsibleSection"
 import { sidebarConfig } from "@/config/sidebar"
+import { SidebarItem } from "@/types/sidebar"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+interface CollapsibleSectionProps {
+  item: SidebarItem;
+  isExpanded: boolean;
+  pathname: string;
+}
 
 export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname()
@@ -49,7 +56,7 @@ export function Sidebar({ className }: SidebarProps) {
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {isExpanded ? (
-            <PanelLeftClose className="h-4 w-4" />
+            <PanelLeft className="h-4 w-4" />
           ) : (
             <PanelRightClose className="h-4 w-4" />
           )}
