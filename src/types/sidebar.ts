@@ -6,6 +6,8 @@ export interface SidebarItem {
   icon?: LucideIcon
   items?: SidebarItem[]
   isCollapsible?: boolean
+  isDisabled?: boolean
+  badge?: string
 }
 
 export interface SidebarSection {

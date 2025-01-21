@@ -105,7 +105,8 @@ export const sidebarConfig: SidebarSection[] = [
       {
         label: "Aurai Turbines",
         icon: Wind,
-        href: "/dashboard/aurai-turbines",
+        isDisabled: true,
+        badge: "Coming Soon",
       },
       {
         label: "Support",

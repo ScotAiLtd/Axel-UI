@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { CollapsibleSection } from "./CollapsibleSection"
 import { sidebarConfig } from "@/config/sidebar"
 import { SidebarItem } from "@/types/sidebar"
+import { Badge } from "@/components/ui/badge"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -81,7 +82,6 @@ export function Sidebar({ className }: SidebarProps) {
                       pathname={pathname}
                     />
                   ) : item.href === "/auth/signout" ? (
-                   
                     <button
                       onClick={handleLogout}
                       className={cn(
@@ -97,22 +97,52 @@ export function Sidebar({ className }: SidebarProps) {
                       {isExpanded && <span>{item.label}</span>}
                     </button>
                   ) : (
-                    <Link
-                      href={item.href || "#"}
+                    <div
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                        "hover:bg-accent hover:text-accent-foreground",
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm",
+                        item.isDisabled 
+                          ? "opacity-60 cursor-not-allowed" 
+                          : "hover:bg-accent hover:text-accent-foreground cursor-pointer",
                         pathname === item.href
                           ? "bg-accent text-accent-foreground"
                           : "text-muted-foreground",
                         !isExpanded && "justify-center"
                       )}
                     >
-                      {item.icon && (
-                        <item.icon className={cn("h-4 w-4", !isExpanded && "h-5 w-5")} />
+                      {item.href ? (
+                        <Link href={item.href} className="flex items-center gap-3 w-full">
+                          {item.icon && (
+                            <item.icon className={cn("h-4 w-4", !isExpanded && "h-5 w-5")} />
+                          )}
+                          {isExpanded && (
+                            <div className="flex items-center justify-between w-full">
+                              <span>{item.label}</span>
+                              {item.badge && (
+                                <Badge variant="outline" className="ml-2 text-xs">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </Link>
+                      ) : (
+                        <>
+                          {item.icon && (
+                            <item.icon className={cn("h-4 w-4", !isExpanded && "h-5 w-5")} />
+                          )}
+                          {isExpanded && (
+                            <div className="flex items-center justify-between w-full">
+                              <span>{item.label}</span>
+                              {item.badge && (
+                                <Badge variant="outline" className="ml-2 text-xs">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </>
                       )}
-                      {isExpanded && <span>{item.label}</span>}
-                    </Link>
+                    </div>
                   )}
                 </div>
               ))}
