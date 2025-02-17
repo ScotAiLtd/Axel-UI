@@ -42,8 +42,8 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Email: contact@auraiwind.com</li>
-              <li>Support: support@auraiwind.com</li>
+              <li>Email: moray@scotai.tech</li>
+              <li>Support: support@scotai.tech</li>
             </ul>
           </div>
           
