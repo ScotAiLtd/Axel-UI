@@ -4,7 +4,7 @@ import { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import type { DefaultSession } from "next-auth";
 
-// Extend the Session type to include user.id
+
 interface ExtendedSession extends DefaultSession {
   user: {
     id: string
@@ -27,7 +27,7 @@ export const authConfig: AuthOptions = {
     }),
   ],
   pages: {
-    signIn: "/sign-in",
+    signIn: "/",
     signOut: "/",
   },
   callbacks: {

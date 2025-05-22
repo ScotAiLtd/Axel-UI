@@ -10,7 +10,7 @@ export function GradientEffects() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
-        className="absolute top-[-10%] left-1/2 -translate-x-1/2 h-[500px] w-[800px] bg-[#8ec2b3] opacity-[0.07] blur-[150px] rounded-full"
+        className="absolute top-[-10%] left-1/2 -translate-x-1/2 h-[500px] w-[800px] bg-gradient-to-r from-[#D29653] to-[#603BDA] opacity-[0.07] blur-[150px] rounded-full"
       />
       
      
@@ -18,13 +18,13 @@ export function GradientEffects() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 0.2 }}
-        className="absolute right-[-20%] top-[20%] h-[300px] w-[300px] bg-[#8ec2b3] opacity-[0.05] blur-[90px] rounded-full"
+        className="absolute right-[-20%] top-[20%] h-[300px] w-[300px] bg-[#D29653] opacity-[0.05] blur-[90px] rounded-full"
       />
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 0.3 }}
-        className="absolute left-[-10%] top-[40%] h-[250px] w-[250px] bg-[#8ec2b3] opacity-[0.04] blur-[80px] rounded-full"
+        className="absolute left-[-10%] top-[40%] h-[250px] w-[250px] bg-[#603BDA] opacity-[0.04] blur-[80px] rounded-full"
       />
       
   

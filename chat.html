@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Base Chat</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Left side - Document viewer -->
+        <div class="document-panel">
+            <div class="panel-header">
+                <h2>Eastern Western Motor Group - People Management Toolkit</h2>
+                <div class="header-controls">
+                    <button id="refresh-document" title="Refresh document">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="toggle-document-fullscreen" title="Toggle fullscreen">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="document-content">
+                <iframe id="document-viewer" src="https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF" allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <!-- Right side - Chat interface -->
+        <div class="chat-panel">
+            <div class="panel-header">
+                <h2>mAint Knowledge Assistant</h2>
+                <div class="header-controls">
+                    <button id="clear-chat" title="Clear conversation">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button id="toggle-chat-fullscreen" title="Toggle fullscreen">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- Welcome message -->
+                <div class="message assistant">
+                    <div class="message-content">
+                        <p>Hello! I'm Penelope. How can I help you today?</p>
+                    </div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <textarea id="chat-input" placeholder="Ask me about the People Management Toolkit..." rows="1"></textarea>
+                <button id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="powered-by">
+                Brought to you by ScotAi, powered by mAint
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

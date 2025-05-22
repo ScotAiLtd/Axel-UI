@@ -5,152 +5,87 @@ import { motion } from "framer-motion"
 export function ThemedBackground() {
   return (
     <>
-     
+      {/* Geometric pattern background */}
       <div className="absolute inset-0">
         <svg className="w-full h-full opacity-[0.04]">
           <defs>
-            <pattern id="technical-pattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
-              <circle cx="100" cy="100" r="2" fill="#8ec2b3" />
-              <circle cx="100" cy="100" r="40" stroke="#8ec2b3" strokeWidth="0.5" fill="none" />
-              <line x1="100" y1="60" x2="100" y2="140" stroke="#8ec2b3" strokeWidth="0.5" />
-              <line x1="60" y1="100" x2="140" y2="100" stroke="#8ec2b3" strokeWidth="0.5" />
+            <pattern id="geometric-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <circle cx="50" cy="50" r="1.5" fill="#603BDA" />
+              <circle cx="25" cy="25" r="1.5" fill="#D29653" />
+              <circle cx="75" cy="75" r="1.5" fill="#D29653" />
+              <circle cx="50" cy="50" r="25" stroke="#603BDA" strokeWidth="0.5" fill="none" />
+              <rect x="40" y="40" width="20" height="20" stroke="#D29653" strokeWidth="0.5" fill="none" />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#technical-pattern)" />
+          <rect width="100%" height="100%" fill="url(#geometric-pattern)" />
         </svg>
       </div>
 
-    
+      {/* Animated wave patterns */}
+      <div className="absolute inset-0">
+        <svg className="w-full h-full opacity-[0.03]">
+          <defs>
+            <pattern id="wave-pattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+              <motion.path
+                d="M0 80 Q 40 40, 80 80 T 160 80 T 240 80"
+                fill="none"
+                stroke="#D29653"
+                strokeWidth="1.5"
+                initial={{ strokeDasharray: 240, strokeDashoffset: 240 }}
+                animate={{ strokeDashoffset: 0 }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              />
+              <motion.path
+                d="M0 120 Q 40 160, 80 120 T 160 120 T 240 120"
+                fill="none"
+                stroke="#603BDA"
+                strokeWidth="1.5"
+                initial={{ strokeDasharray: 240, strokeDashoffset: 240 }}
+                animate={{ strokeDashoffset: 0 }}
+                transition={{ duration: 3, delay: 1.5, repeat: Infinity, ease: "linear" }}
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#wave-pattern)" />
+        </svg>
+      </div>
+
+      {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden">
-      
-        <div className="absolute right-[10%] top-[20%] w-[300px] opacity-[0.06]">
-          <svg viewBox="0 0 100 160" className="w-full">
-       
-            <path
-              d="M45 160 L55 160 L52 60 L48 60 Z"
-              fill="#8ec2b3"
-            />
-            
-            <circle cx="50" cy="60" r="5" fill="#8ec2b3" />
-            
-        
-            <g>
-          
-              <motion.path 
-                d="M50 60 L47 25 L53 25 Z"
-                fill="#8ec2b3"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                style={{ originX: "50px", originY: "60px" }}
-              />
-       
-              <motion.path 
-                d="M50 60 L47 25 L53 25 Z"
-                fill="#8ec2b3"
-                initial={{ rotate: 120 }}
-                animate={{ rotate: 480 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                style={{ originX: "50px", originY: "60px" }}
-              />
-          
-              <motion.path 
-                d="M50 60 L47 25 L53 25 Z"
-                fill="#8ec2b3"
-                initial={{ rotate: 240 }}
-                animate={{ rotate: 600 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                style={{ originX: "50px", originY: "60px" }}
-              />
-            </g>
-          </svg>
-        </div>
-
- 
-        <div className="absolute left-[5%] top-[40%] w-[200px] opacity-[0.04]">
-          <svg viewBox="0 0 100 160" className="w-full">
-          
-            <path
-              d="M45 160 L55 160 L52 60 L48 60 Z"
-              fill="#8ec2b3"
-            />
-            
-          
-            <circle cx="50" cy="60" r="5" fill="#8ec2b3" />
-            
-       
-            <g>
-         
-              <motion.path 
-                d="M50 60 L47 25 L53 25 Z"
-                fill="#8ec2b3"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                style={{ originX: "50px", originY: "60px" }}
-              />
-           
-              <motion.path 
-                d="M50 60 L47 25 L53 25 Z"
-                fill="#8ec2b3"
-                initial={{ rotate: 120 }}
-                animate={{ rotate: 480 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                style={{ originX: "50px", originY: "60px" }}
-              />
-         
-              <motion.path 
-                d="M50 60 L47 25 L53 25 Z"
-                fill="#8ec2b3"
-                initial={{ rotate: 240 }}
-                animate={{ rotate: 600 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                style={{ originX: "50px", originY: "60px" }}
-              />
-            </g>
-          </svg>
-        </div>
+        <motion.div
+          className="absolute w-2 h-2 rounded-full bg-[#D29653]/30"
+          initial={{ x: '10%', y: '20%', opacity: 0 }}
+          animate={{ x: '15%', y: '25%', opacity: 0.5 }}
+          transition={{ duration: 8, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute w-3 h-3 rounded-full bg-[#603BDA]/20"
+          initial={{ x: '80%', y: '50%', opacity: 0 }}
+          animate={{ x: '75%', y: '45%', opacity: 0.4 }}
+          transition={{ duration: 10, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute w-4 h-4 rounded-full bg-[#D29653]/15"
+          initial={{ x: '30%', y: '70%', opacity: 0 }}
+          animate={{ x: '35%', y: '65%', opacity: 0.3 }}
+          transition={{ duration: 12, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+        />
       </div>
 
-
-      <div className="absolute inset-0">
-        <svg className="w-full h-full opacity-[0.04]">
-          <defs>
-            <pattern id="flow-pattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
-              <motion.path
-                d="M0 100 Q 50 50, 100 100 T 200 100"
-                fill="none"
-                stroke="#8ec2b3"
-                strokeWidth="2"
-                initial={{ strokeDasharray: 200, strokeDashoffset: 200 }}
-                animate={{ strokeDashoffset: 0 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              />
-              <motion.path
-                d="M0 150 Q 50 100, 100 150 T 200 150"
-                fill="none"
-                stroke="#8ec2b3"
-                strokeWidth="2"
-                initial={{ strokeDasharray: 200, strokeDashoffset: 200 }}
-                animate={{ strokeDashoffset: 0 }}
-                transition={{ duration: 2, delay: 1, repeat: Infinity, ease: "linear" }}
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#flow-pattern)" />
-        </svg>
+      {/* Subtle grid lines */}
+      <div className="absolute inset-0 opacity-[0.02]">
+        <div className="absolute top-[15%] left-[10%] w-[150px] border-t border-dashed border-[#D29653]" />
+        <div className="absolute top-[40%] right-[15%] h-[120px] border-l border-dashed border-[#603BDA]" />
+        <div className="absolute bottom-[25%] left-[20%] w-[100px] border-t border-dashed border-[#D29653]" />
       </div>
 
-     
-      <div className="absolute inset-0 opacity-[0.04]">
-        <div className="absolute top-[10%] left-[5%] w-[200px] border-t border-dashed border-[#8ec2b3]">
-          <div className="text-[#8ec2b3] text-sm mt-1">150mm</div>
-        </div>
-        <div className="absolute top-[30%] right-[10%] h-[160px] border-l border-dashed border-[#8ec2b3]">
-          <div className="text-[#8ec2b3] text-sm ml-2">200mm</div>
-        </div>
-        <div className="absolute bottom-[20%] left-[15%] w-[120px] border-t border-dashed border-[#8ec2b3]">
-          <div className="text-[#8ec2b3] text-sm mt-1">100mm</div>
-        </div>
-      </div>
+      {/* Noise texture overlay */}
+      <div 
+        className="absolute inset-0 opacity-[0.01] mix-blend-soft-light"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+      />
     </>
   )
 } 

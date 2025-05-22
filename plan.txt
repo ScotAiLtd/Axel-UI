@@ -1,0 +1,167 @@
+Project Axle - People Management Toolkit
+
+
+Project Overview
+Development of a dual-interface knowledge assistant (codenamed "Axle") for Eastern Western Motor Group (EWMG) based loosely on mAint. The system will provide separate interfaces for managers and employees, using content from Page Tiger and potentially other sources (specified domains, videos, and attached files in the page tiger interface).
+Key Components
+Manager Interface: Chat interface to access management-specific HR policies and procedures
+Employee Interface: Chat interface to access general employee HR information
+Page Tiger Integration: Automated content scraping and processing from your existing system
+Analytics Reporting: Weekly summaries of usage and query patterns (currently out of immediate scope)
+
+Timeline & Milestones
+
+
+Development Phases
+Phase 1: Discovery & Planning
+Kick-off meeting 
+Handover of current work done by Nick
+Repository initialisation
+Environment setup
+Database configuration 
+Demo UI development and hosting for early user feedback
+Page Tiger access setup and authorisation testing
+Phase 2: Core Development
+Page Tiger integration
+Page Tiger AzureAD/SSO integration
+Web scraper implementation for content monitoring
+Update tracking system for detecting content changes
+mAint Prism API integration for content processing
+Vector embedding pipeline implementation
+Dual Interface Development (manager/employee)
+Chat engine implementation with context aware
+Query processing with vector search
+Response generation with proper citation
+Phase 3: Interface Development 
+Manager interface development
+Employee interface development
+Responsive design implementation
+Authentication flow integration
+User role management
+Session handling and security measures
+Browser compatibility testing
+Session management and history
+Error handling and fallbacks
+Phase 4: Synthetic Human Integration (Out of scope)
+Voice synthesis implementation
+Voice interaction setup
+Performance optimisation
+Dynamic response to user interaction
+Phase 5: Analytics (Out of scope) & Testing 
+Usage tracking implementation
+Query analysis system
+Weekly email report/Analytics dashboard generation
+Integration and Performance testing of the entire system
+User acceptance testing
+Bug fixing and refinement
+Phase 6: Deployment & Documentation (Week 13)
+Production deployment
+Monitoring 
+Backup and disaster recovery configuration
+Admin user guide
+End user documentation
+Training delivery
+Detailed Process Description
+1. Content Management
+The system continuously monitors and processes PageTiger to ensure the knowledge base remains current:
+Content Acquisition: 
+Automated scraping of Page Tiger content on a conditional basis
+Change detection system to identify modifications in existing content
+Comparison of current and previous content versions to pinpoint changes (if needed)
+Processing of relevant datasets
+Update Tracking System: 
+Continuous monitoring of Page Tiger content for modifications
+Differential analysis to identify specific changes between versions
+Timestamp tracking for all content updates
+Version history maintenance for audit and rollback capabilities
+Content Processing: 
+Text and image extraction and cleaning to remove formatting artifacts
+Structural analysis to identify sections, headings, and relationships
+Entity recognition to identify key concepts and terminology
+Content chunking optimised for vector database storage
+Knowledge Base Creation: 
+Conversion of processed text into vector embeddings using mAint Prism API
+Organisation of content into manager and employee knowledge bases
+Metadata tagging for improved retrieval accuracy
+Relationship mapping between related content pieces
+2. Authentication & Access Control
+The system will use AzureAD integration for role-based access:
+AzureAD Integration: 
+Direct integration with EWMG's existing AzureAD environment
+Secure Single Sign-On (SSO) capability
+Automatic role recognition based on AzureAD groups
+Smooth authentication experience for users
+Role-Based Access Control: 
+Manager and employee interfaces determined by AzureAD roles or separate URL??
+Content access restrictions based on user permissions
+Automatic routing to appropriate knowledge base
+Response Generation: 
+Retrieved content is organised and formatted
+Natural language response is generated
+Citations to source documents are included
+Conversation Management: 
+Conversation history is maintained for context
+Follow-up questions are understood in context
+3. Analytics and Reporting (Out of Scope)
+The system collects and analyses usage data to improve performance:
+Data Collection: 
+User queries and conversation flows
+Response quality and user feedback
+System performance metrics
+Knowledge base coverage analysis
+Report Generation: 
+Weekly summary reports are generated automatically
+Reports include usage statistics and common queries
+Identified gaps are highlighted
+System performance metrics are included
+
+
+
+
+Project Axle - People Management Toolkit
+
+
+Project Overview
+ScotAi is pleased to present this development plan for the implementation of Axle, a custom People Management Toolkit based on our mAint Knowledge Assistant platform. This solution will provide Eastern Western Motor Group Ltd with an intuitive chat interface for accessing HR information, with separate toolkits for managers and employees.
+Key Components
+Manager Interface: Chat interface to access management-specific HR policies and procedures
+Employee Interface: Chat interface to access general employee HR information
+Page Tiger Integration: Automated content scraping and processing from your existing system
+Analytics Reporting: Weekly summaries of usage and query patterns (currently out of immediate scope)
+Timeline & Milestones
+
+Implementation Process
+Content Integration
+Page Tiger Connection: Secure connections will be established to your Page Tiger instance
+Content Scraping: Automated system will monitor and capture content updates
+Knowledge Processing: Content will be processed through our mAint Prism API
+Vectorisation: Information will be converted into searchable vector formats
+Knowledge Base Creation: Separate knowledge bases will be created for manager and employee interfaces
+User Experience
+Interface Design: Intuitive chat interfaces designed for both manager and employee access
+Authentication: AzureAD/SSO integration for secure access control
+Multi-channel Access: Web-based interface optimized for desktop and mobile use
+Synthetic Human: Implementation of virtual HR assistant "Axle"  (Out of Immediate Scope)
+Analytics & Reporting (Out of Immediate Scope)
+Usage Tracking: Implementation of anonymous usage metrics
+Query Analysis: Tracking of common questions and information gaps
+Weekly Email Reports: Automated comprehensive email reports sent to HR team
+Continuous Improvement: Regular review of analytics to enhance system performance
+The weekly analytics email will provide the HR team with valuable insights including:
+Total queries and unique users
+Most common query categories
+Potential knowledge gaps identified
+Actionable recommendations based on usage patterns
+Customer Involvement & Requirements
+To ensure a successful implementation, we request the following from EWMG:
+Page Tiger Access: Consistent access to Page Tiger system
+Content Review: Regular feedback on content accuracy and completeness
+Test Group: 5-10 users for UAT during testing phase
+Project Liaison: Bekka to Project Manage
+AzureAD Configuration: IT support for authentication setup
+Post-Implementation Support
+Following successful deployment, ScotAi will provide:
+Technical Support: Ongoing support for any technical issues
+Content Updates: Assistance with knowledge base maintenance
+System Enhancements: Bug and issue resolution based on feedback and analytics
+Training: Additional training sessions as needed
