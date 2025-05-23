@@ -136,7 +136,7 @@ export default function ChatInterface() {
         </button>
       </div>
 
-      <div className="mx-2 mb-2 mt-1 rounded-lg text-center text-xs text-muted-foreground py-2 border border-border">
+      <div className="mx-2 mb-2 mt-1 rounded-lg text-center text-xs text-muted-foreground py-2">
         Brought to you by <span className="font-semibold text-primary">ScotAi</span>, powered by <span className="font-semibold text-accent">mAint</span>
       </div>
     </div>
