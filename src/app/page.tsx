@@ -56,6 +56,13 @@ export default function HomePage() {
                     transition={{ duration: 0.4 }}
                     className="flex flex-col items-center"
                   >
+                    <div className="mb-3 w-40 h-40 relative">
+                      <img 
+                        src="/logo.png" 
+                        alt="Axle Logo" 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
                     <span className={`text-4xl font-bold ${TITLE_COLOR}`}>
                       Axle
                     </span>

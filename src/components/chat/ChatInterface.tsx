@@ -78,7 +78,7 @@ export default function ChatInterface() {
   return (
     <div className={`chat-panel flex flex-col ${isFullscreen ? "w-full" : ""}`}>
       <div className="panel-header flex justify-between items-center p-4 bg-white border-b border-border z-10">
-        <h2 className="text-lg font-semibold text-primary">mAint Knowledge Assistant</h2>
+        <h2 className="text-lg font-semibold text-primary">Knowledge Assistant</h2>
         <div className="header-controls flex gap-2">
           <button 
             onClick={clearChat}
@@ -136,8 +136,8 @@ export default function ChatInterface() {
         </button>
       </div>
 
-      <div className="powered-by text-center text-xs text-muted-foreground py-2 bg-secondary border-t border-border">
-        Brought to you by ScotAi, powered by mAint
+      <div className="powered-by mx-4 mb-4 mt-2 rounded-lg text-center text-xs text-muted-foreground py-2 bg-secondary border border-border shadow-sm transition-colors">
+        Brought to you by <span className="font-semibold text-primary">ScotAi</span>, powered by <span className="font-semibold text-accent">mAint</span>
       </div>
     </div>
   )
