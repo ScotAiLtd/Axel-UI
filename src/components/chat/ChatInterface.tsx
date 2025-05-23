@@ -8,7 +8,7 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hello! I'm Penelope. How can I help you today?",
+      content: "Hello! I'm Axle. How can I help you today?",
       timestamp: "Just now"
     }
   ])
@@ -36,7 +36,7 @@ export default function ChatInterface() {
     setMessages([
       {
         role: "assistant",
-        content: "Hello! I'm Penelope. How can I help you today?",
+        content: "Hello! I'm Axle. How can I help you today?",
         timestamp: "Just now"
       }
     ])
@@ -78,7 +78,7 @@ export default function ChatInterface() {
   return (
     <div className={`chat-panel flex flex-col ${isFullscreen ? "w-full" : ""}`}>
       <div className="panel-header flex justify-between items-center p-4 bg-white border-b border-border z-10">
-        <h2 className="text-lg font-semibold text-primary">Knowledge Assistant</h2>
+        <h2 className="text-lg font-semibold text-primary">Axle - Your People Management Toolkit Assistant</h2>
         <div className="header-controls flex gap-2">
           <button 
             onClick={clearChat}
@@ -124,7 +124,7 @@ export default function ChatInterface() {
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder="Ask me about the People Management Toolkit..."
+          placeholder="Ask me anything..."
           className="flex-1 border border-border rounded-3xl py-2 md:py-3 px-3 md:px-4 resize-none outline-none text-sm md:text-[0.95rem] max-h-[120px] shadow-sm focus:border-accent focus:shadow-accent"
           rows={1}
         />
