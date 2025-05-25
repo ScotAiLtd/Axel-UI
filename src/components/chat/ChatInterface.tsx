@@ -135,8 +135,7 @@ export default function ChatInterface() {
           <Send size={16} className="md:w-[18px] md:h-[18px]" />
         </button>
       </div>
-
-      <div className="mx-2 mb-2 mt-1 rounded-lg text-center text-xs text-muted-foreground">
+      <div className="mx-2 mb-2 mt-1 rounded-lg text-center text-xs text-muted-foreground py-2 border border-border">
         Brought to you by <span className="font-semibold text-primary">ScotAi</span>, powered by <span className="font-semibold text-accent">mAint</span>
       </div>
     </div>
