@@ -14,10 +14,14 @@ export default function ChatPage() {
   if (!isMounted) return null
 
   return (
-    <div className="flex h-screen w-full overflow-hidden" id="chat-container">
-      <DocumentViewer />
+    <div className="flex flex-col md:flex-row h-screen w-full overflow-hidden" id="chat-container">
+      <div className="w-full md:w-[60%] h-1/2 md:h-full md:border-r border-border order-1 md:order-1">
+        <DocumentViewer />
+      </div>
       
-      <ChatInterface />
+      <div className="w-full md:w-[40%] h-1/2 md:h-full flex-shrink-0 order-2 md:order-2 border-t md:border-t-0 border-border">
+        <ChatInterface />
+      </div>
     </div>
   )
 }

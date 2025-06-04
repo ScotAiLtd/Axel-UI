@@ -19,9 +19,9 @@ export default function DocumentViewer() {
   }
 
   return (
-    <div className={`document-panel flex flex-col ${isFullscreen ? "w-full" : ""}`}>
-      <div className="panel-header flex justify-between items-center p-4 bg-white border-b border-border z-10">
-        <h2 className="text-lg font-semibold text-primary truncate md:text-lg">Eastern Western Motor Group - People Management Toolkit</h2>
+    <div className={`document-panel flex flex-col h-full w-full ${isFullscreen ? "fixed inset-0 z-50" : ""}`}>
+      <div className="panel-header flex justify-between items-center p-2 sm:p-4 bg-white border-b border-border z-10">
+        <h2 className="text-sm sm:text-base md:text-lg font-semibold text-primary truncate">Eastern Western Motor Group - People Management Toolkit</h2>
         <div className="header-controls flex gap-2">
           <button 
             onClick={refreshDocument}
@@ -45,6 +45,9 @@ export default function DocumentViewer() {
           src="https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF"
           className="w-full h-full border-none"
           allowFullScreen
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+          referrerPolicy="origin"
+          loading="eager"
         />
       </div>
     </div>

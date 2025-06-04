@@ -11,40 +11,51 @@ interface AuthFormProps {
 /**
  * Authentication form component
  * 
- * This component renders the authentication form with
- * Azure AD sign-in option and additional controls.
+ * Clean, minimal Azure AD authentication interface.
  */
 export function AuthForm({ className = "" }: AuthFormProps) {
-  const [rememberMe, setRememberMe] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleAuthStart = () => {
+    setIsLoading(true)
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className={`space-y-5 ${className}`}
+      className={`space-y-4 ${className}`}
     >
-      {/* Azure AD Sign In Button */}
+      {/* Azure AD Authentication */}
       <div className="space-y-4">
-        <AzureAdButton />
+        <AzureAdButton 
+          onAuthStart={handleAuthStart}
+          isLoading={isLoading}
+        />
         
-        <div className="flex items-center justify-between px-1">
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="remember-me"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-[#0078D4] focus:ring-[#0078D4] cursor-pointer"
-            />
-            <label htmlFor="remember-me" className="text-xs text-gray-600 cursor-pointer">
-              Remember me
-            </label>
-          </div>
-          <button className="text-xs text-[#0078D4] hover:underline focus:outline-none transition-colors">
-            Forgot password?
-          </button>
-        </div>
+        {/* Authentication Status */}
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="bg-blue-50 border border-blue-100 rounded-lg p-3"
+          >
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm text-gray-700">
+                Redirecting to Microsoft...
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Minimal Help Text */}
+      <div className="text-center">
+        <p className="text-xs text-gray-500">
+          Need help? Contact your IT administrator
+        </p>
       </div>
     </motion.div>
   )
