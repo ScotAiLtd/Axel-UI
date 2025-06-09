@@ -226,11 +226,11 @@
   }
 
   .message.user {
-    @apply bg-blue-50 self-end rounded-br-sm;
+    @apply bg-[#172554] text-white self-end rounded-br-sm;
   }
 
   .message.assistant {
-    @apply bg-gray-50 self-start rounded-bl-sm;
+    @apply bg-white self-start rounded-bl-sm;
   }
 
   .message-content {
@@ -238,7 +238,15 @@
   }
 
   .message-time {
-    @apply text-[0.7rem] text-muted-foreground mt-1 text-right;
+    @apply text-[0.7rem] mt-1 text-right;
+  }
+
+  .message.user .message-time {
+    @apply text-[#92C5FD];
+  }
+
+  .message.assistant .message-time {
+    @apply text-black;
   }
 
   .chat-input-area {

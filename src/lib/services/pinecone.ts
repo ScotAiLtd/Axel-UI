@@ -1,86 +1,142 @@
 /**
  * Pinecone Service
  * Handles vector search operations for document retrieval
+ * Using exact same approach as working application
  */
 
 import { Pinecone } from '@pinecone-database/pinecone';
+import { OpenAIEmbeddings } from '@langchain/openai';
+import { PineconeStore } from '@langchain/pinecone';
 import env from '@/config/env';
 import { DocumentSource } from '@/types/chat';
 
 export class PineconeService {
   private pinecone: Pinecone;
   private indexName: string;
+  private embeddings: OpenAIEmbeddings;
 
   constructor() {
     this.pinecone = new Pinecone({
       apiKey: env.PINECONE_API_KEY,
     });
     this.indexName = env.PINECONE_INDEX;
+    // Use exact same embeddings as working application
+    this.embeddings = new OpenAIEmbeddings({
+      openAIApiKey: env.OPENAI_API_KEY,
+    });
   }
 
   /**
-   * Generate embeddings for a given text using OpenAI
-   */
-  private async generateEmbedding(text: string): Promise<number[]> {
-    try {
-      const response = await fetch('https://api.openai.com/v1/embeddings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          input: text,
-          model: 'text-embedding-3-small', // Cost-effective embedding model
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.data[0].embedding;
-    } catch (error) {
-      console.error('Error generating embedding:', error);
-      throw new Error('Failed to generate embedding for search query');
-    }
-  }
-
-  /**
-   * Search for similar documents in Pinecone
+   * Search for similar documents in Pinecone - exact same method as working application
    */
   async searchSimilarDocuments(
     query: string, 
     namespace: string = env.PINECONE_NAMESPACE,
-    topK: number = 5
+    topK: number = 6
   ): Promise<DocumentSource[]> {
     try {
-      // Generate embedding for the query
-      const queryEmbedding = await this.generateEmbedding(query);
+      console.log(`🔍 Pinecone Search Query: "${query}"`);
+      console.log(`📂 Namespace: ${namespace}`);
+      console.log(`🔢 Top K: ${topK}`);
 
-      // Get Pinecone index
-      const index = this.pinecone.index(this.indexName);
+      // Use exact same pattern as working application
+      const pineconeIndex = this.pinecone.index(this.indexName);
 
-      // Perform similarity search
-      const searchResponse = await index.namespace(namespace).query({
-        vector: queryEmbedding,
-        topK,
-        includeValues: false,
-        includeMetadata: true,
+      const vectorStore = await PineconeStore.fromExistingIndex(this.embeddings, {
+        pineconeIndex,
+        namespace: namespace,
       });
 
-      // Transform results to DocumentSource format
-      const sources: DocumentSource[] = searchResponse.matches?.map((match) => ({
-        content: (match.metadata?.text as string) || '',
-        metadata: match.metadata || {},
-        score: match.score || 0,
-      })) || [];
+      // This is the exact same call as in the working application
+      const results = await (vectorStore as any).similaritySearch(query, topK);
+      console.log(`✅ Pinecone search completed. Found ${results.length} matches`);
+      console.log('Raw results:', results);
 
-      return sources.filter(source => source.content && source.content.trim().length > 0);
+      // Transform results to DocumentSource format
+      const sources: DocumentSource[] = results.map((result: any, index: number) => {
+        const content = result.pageContent || result.metadata?.pageContent || '';
+        
+        console.log(`📊 Result ${index + 1}: Content found`);
+        console.log(`   Content Preview: ${content.substring(0, 100)}${content.length > 100 ? '...' : ''}`);
+        console.log(`   Metadata:`, result.metadata);
+        
+        return {
+          content,
+          metadata: result.metadata || {},
+          score: 0.8, // Default score since similaritySearch doesn't return scores
+        };
+      });
+
+      const filteredSources = sources.filter(source => source.content && source.content.trim().length > 0);
+      
+      console.log(`🎯 Final results: ${filteredSources.length} relevant documents`);
+
+      return filteredSources;
     } catch (error) {
-      console.error('Error searching documents in Pinecone:', error);
+      console.error('❌ Error searching documents in Pinecone:', error);
       throw new Error('Failed to search for relevant documents');
+    }
+  }
+
+  /**
+   * Get all embedded text from a specific namespace
+   */
+  async getAllEmbeddedText(namespace: string = env.PINECONE_NAMESPACE): Promise<DocumentSource[]> {
+    try {
+      console.log(`📚 Fetching all embedded text from namespace: ${namespace}`);
+      
+      const pineconeIndex = this.pinecone.index(this.indexName);
+      
+      // First, get index stats to understand the namespace
+      const stats = await pineconeIndex.describeIndexStats();
+      console.log(`📊 Index stats for namespace "${namespace}":`, stats.namespaces?.[namespace]);
+      
+      const vectorStore = await PineconeStore.fromExistingIndex(this.embeddings, {
+        pineconeIndex,
+        namespace: namespace,
+      });
+      
+      // Use multiple broad searches to get documents
+      const commonQueries = [
+        "document", "text", "content", "information", "data", "policy", "procedure", "form"
+      ];
+      
+      const allDocuments = new Map<string, DocumentSource>();
+      
+      for (let i = 0; i < Math.min(4, commonQueries.length); i++) {
+        try {
+          const queryResults = await (vectorStore as any).similaritySearch(commonQueries[i], 200);
+          
+          queryResults.forEach((result: any, idx: number) => {
+            const content = result.pageContent || result.metadata?.pageContent || '';
+            const docId = `${result.metadata?.id || `${namespace}-${i}-${idx}`}`;
+            
+            if (content && content.trim().length > 0 && !allDocuments.has(docId)) {
+              allDocuments.set(docId, {
+                content,
+                metadata: {
+                  ...result.metadata,
+                  id: docId,
+                },
+                score: 0.5,
+              });
+            }
+          });
+          
+          console.log(`🔍 Query "${commonQueries[i]}" returned ${queryResults.length} matches. Total unique: ${allDocuments.size}`);
+        } catch (queryError) {
+          console.warn(`⚠️ Query for "${commonQueries[i]}" failed:`, queryError);
+        }
+      }
+
+      const documents = Array.from(allDocuments.values());
+      
+      console.log(`✅ Retrieved ${documents.length} unique embedded documents from namespace`);
+      
+      return documents;
+    } catch (error) {
+      console.error('❌ Error fetching embedded text from Pinecone:', error);
+      throw new Error('Failed to fetch embedded text from namespace');
     }
   }
 

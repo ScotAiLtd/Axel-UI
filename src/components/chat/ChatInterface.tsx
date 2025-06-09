@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Expand, Trash, Send, Loader2, AlertCircle } from "lucide-react"
+import { Expand, Trash, Send, Loader2, AlertCircle, Copy, Check } from "lucide-react"
 import { Message, ChatRequest, ChatResponse, ApiErrorResponse } from "@/types/chat"
 import ReactMarkdown from 'react-markdown'
 
@@ -17,8 +17,18 @@ export default function ChatInterface() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const handleCopyToClipboard = (text: string, messageIndex: number) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedMessageId(messageIndex)
+      setTimeout(() => setCopiedMessageId(null), 2000) // Reset after 2 seconds
+    }).catch(err => {
+      console.error('Failed to copy text: ', err)
+    })
+  }
   
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen)
@@ -218,8 +228,25 @@ export default function ChatInterface() {
                 </ReactMarkdown>
               </div>
             </div>
-            <div className="message-time text-[0.7rem] text-muted mt-1 text-right">
-              {message.timestamp}
+            <div className="flex justify-between items-center mt-1">
+              <div className="flex-1">
+                {message.role === 'assistant' && (
+                  <button 
+                    onClick={() => handleCopyToClipboard(message.content, index)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors p-1 -ml-1 rounded"
+                    title={copiedMessageId === index ? 'Copied!' : 'Copy text'}
+                  >
+                    {copiedMessageId === index ? (
+                      <Check size={14} className="text-green-500" />
+                    ) : (
+                      <Copy size={14} />
+                    )}
+                  </button>
+                )}
+              </div>
+              <div className="message-time text-[0.7rem] text-black text-right">
+                {message.timestamp}
+              </div>
             </div>
           </div>
         ))}
