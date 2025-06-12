@@ -1,0 +1,236 @@
+import { db } from "@/db";
+import { openai } from "@/lib/openai";
+import { SendMessageValidator } from "@/lib/validators/SendMessageValidator";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { PineconeStore } from "@langchain/pinecone";
+import { Pinecone } from "@pinecone-database/pinecone";
+import { NextRequest } from "next/server";
+import { isAuthenticated } from "@/utils/isAuthorised.util";
+
+import { OpenAIStream, StreamingTextResponse } from "ai";
+
+export const maxDuration = 300;
+export const POST = async (req: NextRequest) => {
+  // endpoint for asking a question to a pdf file
+
+  const body = await req.json();
+  const {
+    fileId,
+    message,
+    guestId,
+    isTeam,
+    language = "en",
+  } = SendMessageValidator.parse(body);
+  let userId = await isAuthenticated();
+  let file;
+  let isAdmin = false;
+  if ((!guestId || guestId === "") && !isTeam) {
+    if (!userId) return new Response("Unauthorized", { status: 401 });
+
+    const dbUser = await db.user.findFirst({ where: { id: userId } });
+
+    isAdmin = dbUser?.role === "ADMIN" ? true : false;
+
+    file = await db.file.findFirst({
+      where: {
+        id: fileId,
+        userId,
+      },
+    });
+
+    if (!file) return new Response("Not found", { status: 404 });
+  } else if (isTeam) {
+    if (!userId) return new Response("Unauthorized", { status: 401 });
+
+    file = await db.teamFile.findFirst({
+      where: {
+        id: fileId,
+      },
+    });
+
+    if (!file) return new Response("Not found", { status: 404 });
+  } else {
+    userId = guestId as string;
+    file = await db.orgFile.findFirst({
+      where: {
+        id: fileId,
+      },
+    });
+
+    if (!file) return new Response("Not found", { status: 404 });
+  }
+
+  await db.message.create({
+    data: {
+      text: message,
+      isUserMessage: true,
+      userId,
+      ...(isTeam ? { teamFileId: fileId } : { fileId }),
+      fileId,
+    },
+  });
+
+  // 1: vectorize message
+  const embeddings = new OpenAIEmbeddings({
+    openAIApiKey: process.env.OPENAI_API_KEY,
+  });
+
+  const pinecone = new Pinecone();
+  const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
+
+  const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+    pineconeIndex,
+    namespace: file.namespace,
+  });
+
+  const results = await vectorStore.similaritySearch(message, 6);
+  console.log(results);
+
+  const prevMessages = await db.message.findMany({
+    where: {
+      ...(isTeam ? { teamFileId: fileId } : { fileId }),
+      userId,
+      fileId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 2,
+  });
+
+  const formattedPrevMessages = prevMessages.map((msg) => ({
+    role: msg.isUserMessage ? ("user" as const) : ("assistant" as const),
+    content: msg.text,
+  }));
+
+  const languageConfigs = {
+    en: {
+      systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in English in markdown format. 
+      Do not reply with 'I'm developed by the OpenAI Team.' 
+      If a user asks about the development team, respond with 'engineers at ScotAI.' 
+      Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
+      Don't answer if the question is out of context`,
+
+      userPrompt: `Provide the response first.
+      If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
+      \n Provide a list of the conflicting or unspecified items or details from my request.
+     \n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,
+      `,
+    },
+    es: {
+      systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in Spanish in markdown format. 
+        Do not reply with 'I'm developed by the OpenAI Team.' 
+        If a user asks about the development team, respond with 'engineers at ScotAI.' 
+        Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
+        Don't answer if the question is out of context`,
+
+      userPrompt: `Provide the response first.
+        If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
+        \n Provide a list of the conflicting or unspecified items or details from my request.
+       \n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,
+        `,
+    },
+    de: {
+      systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in German in markdown format. 
+        Do not reply with 'I'm developed by the OpenAI Team.' 
+        If a user asks about the development team, respond with 'engineers at ScotAI.' 
+        Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
+        Don't answer if the question is out of context`,
+
+      userPrompt: `Provide the response first.
+        If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
+        \n Provide a list of the conflicting or unspecified items or details from my request.
+       \n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,
+        `,
+    },
+    pt: {
+      systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in Portuguese in markdown format. 
+        Do not reply with 'I'm developed by the OpenAI Team.' 
+        If a user asks about the development team, respond with 'engineers at ScotAI.' 
+        Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
+        Don't answer if the question is out of context`,
+
+      userPrompt: `Provide the response first.
+        If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
+        \n Provide a list of the conflicting or unspecified items or details from my request.
+       \n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,
+        `,
+    },
+    kk: {
+      systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in Kazakh in markdown format. 
+        Do not reply with 'I'm developed by the OpenAI Team.' 
+        If a user asks about the development team, respond with 'engineers at ScotAI.' 
+        Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
+        Don't answer if the question is out of context`,
+
+      userPrompt: `Provide the response first.
+        If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
+        \n Provide a list of the conflicting or unspecified items or details from my request.
+       \n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,
+        `,
+    },
+    pl: {
+      systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in Polish in markdown format. 
+      Do not reply with 'I'm developed by the OpenAI Team.' 
+      If a user asks about the development team, respond with 'engineers at ScotAI.' 
+      Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
+      Don't answer if the question is out of context`,
+
+      userPrompt: `Provide the response first.
+      If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
+      \n Provide a list of the conflicting or unspecified items or details from my request.
+     \n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,
+      `,
+    },
+  };
+
+  const languageConfig =
+    languageConfigs[language as keyof typeof languageConfigs] ||
+    languageConfigs.en;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    temperature: 0,
+    stream: true,
+    messages: [
+      {
+        role: "system",
+        content: languageConfig.systemPrompt,
+      },
+
+      {
+        role: "user",
+        content: `${languageConfig.userPrompt}
+  \n\n
+     PREVIOUS CONVERSATION:
+     ${formattedPrevMessages.map((message) => {
+       if (message.role === "user") return `User: ${message.content}\n`;
+       return `Assistant: ${message.content}\n`;
+     })}
+  
+     \n----------------\n
+  
+     CONTEXT:
+     ${results.map((r) => r.pageContent || r.metadata.pageContent).join("\n\n")}
+  
+     USER INPUT: ${message}`,
+      },
+    ],
+  });
+
+  const stream = OpenAIStream(response, {
+    async onCompletion(completion) {
+      await db.message.create({
+        data: {
+          text: completion,
+          isUserMessage: false,
+          ...(isTeam ? { teamFileId: fileId } : { fileId }),
+          userId,
+          fileId,
+        },
+      });
+    },
+  });
+
+  return new StreamingTextResponse(stream);
+};

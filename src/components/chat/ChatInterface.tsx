@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Expand, Trash, Send, Loader2, AlertCircle, Copy, Check } from "lucide-react"
+import { Expand, Trash, Send, Loader2, AlertCircle, Copy, Check, Mic } from "lucide-react"
 import { Message, ChatRequest, ChatResponse, ApiErrorResponse } from "@/types/chat"
 import ReactMarkdown from 'react-markdown'
 
@@ -263,28 +263,46 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="chat-input-area flex p-1 sm:p-2 bg-white border-t border-border">
-        <textarea
-          ref={textareaRef}
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask me about the People Management Toolkit..."
-          className="flex-1 border border-border rounded-3xl py-2 sm:py-3 px-2 sm:px-4 resize-none outline-none text-sm sm:text-[0.95rem] max-h-[100px] sm:max-h-[120px] shadow-sm focus:border-accent focus:shadow-accent disabled:opacity-50"
-          rows={1}
-          disabled={isLoading}
-        />
-        <button
-          onClick={sendMessage}
-          disabled={isLoading || inputValue.trim() === ""}
-          className="bg-accent text-white border-none w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ml-1 sm:ml-3 cursor-pointer shadow-sm transition-all hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-accent"
-        >
-          {isLoading ? (
-            <Loader2 size={14} className="animate-spin sm:w-[18px] sm:h-[18px]" />
-          ) : (
-            <Send size={14} className="sm:w-[18px] sm:h-[18px]" />
-          )}
-        </button>
+      <div className="chat-input-area flex p-3 sm:p-4 bg-white border-t border-border">
+        <div className="relative w-full">
+          <textarea
+            ref={textareaRef}
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Enter your question..."
+            className="w-full border border-gray-200 rounded-3xl py-1.5 sm:py-1.5 pl-4 sm:pl-5 pr-24 sm:pr-28 resize-none outline-none text-sm sm:text-base min-h-[24px] sm:min-h-[26px] max-h-[100px] sm:max-h-[120px] overflow-y-auto shadow-sm focus:border-accent focus:shadow-accent disabled:opacity-50 transition-all leading-normal"
+            disabled={isLoading}
+            style={{ scrollbarWidth: 'thin' }}
+          />
+          
+          {/* Icons container */}
+          <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 sm:gap-3">
+            {/* Mic Icon */}
+            <button
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all hover:opacity-80"
+              style={{ backgroundColor: '#1F3A8A' }}
+              title="Voice input (coming soon)"
+              disabled={isLoading}
+            >
+              <Mic size={14} className="sm:w-[16px] sm:h-[16px] text-white" />
+            </button>
+            
+            {/* Send Button */}
+            <button
+              onClick={sendMessage}
+              disabled={isLoading || inputValue.trim() === ""}
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all hover:opacity-80"
+              style={{ 
+                backgroundColor: isLoading || inputValue.trim() === "" ? '#8A92AA' : '#1F3A8A',
+                cursor: isLoading || inputValue.trim() === "" ? 'not-allowed' : 'pointer'
+              }}
+              title="Send message"
+            >
+              <Send size={14} className="sm:w-[16px] sm:h-[16px] text-white" />
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="mx-2 mb-0 rounded-lg text-center text-[10px] sm:text-xs text-muted-foreground py-0.5">
