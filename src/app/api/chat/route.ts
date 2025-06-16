@@ -1,13 +1,15 @@
 /**
  * Chat API Route
  * Next.js 15 App Router API endpoint for handling chat requests
- * Implements RAG (Retrieval Augmented Generation) using Pinecone + OpenAI
+ * Implements RAG (Retrieval Augmented Generation) using Pinecone + OpenAI with Streaming
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ChatService } from '@/lib/services/chat';
-import { ChatRequest, ChatResponse, ApiErrorResponse } from '@/types/chat';
+import { ChatRequest, ApiErrorResponse } from '@/types/chat';
 import { validateEnv } from '@/config/env';
+import { streamText } from 'ai';
+import { openai } from '@ai-sdk/openai';
 
 // Initialize chat service
 let chatService: ChatService;
@@ -30,9 +32,9 @@ function initializeServices() {
 
 /**
  * POST /api/chat
- * Handle chat message requests
+ * Handle chat message requests with streaming
  */
-export async function POST(request: NextRequest): Promise<NextResponse<ChatResponse | ApiErrorResponse>> {
+export async function POST(request: NextRequest) {
   try {
     // Initialize services with environment validation
     const service = initializeServices();
@@ -41,7 +43,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
     const body: ChatRequest = await request.json();
     
     if (!body.message || typeof body.message !== 'string' || body.message.trim().length === 0) {
-      return NextResponse.json(
+      return Response.json(
         { 
           error: 'Message is required and must be a non-empty string',
           code: 'INVALID_INPUT' 
@@ -52,9 +54,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
 
     // Sanitize input
     const sanitizedMessage = body.message.trim();
+    const language = body.language || 'en';
     
     if (sanitizedMessage.length > 4000) {
-      return NextResponse.json(
+      return Response.json(
         { 
           error: 'Message is too long. Maximum length is 4000 characters.',
           code: 'MESSAGE_TOO_LONG' 
@@ -63,17 +66,22 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       );
     }
 
-    // Process the message using RAG
-    const { response, sources } = await service.processMessage(
+    // Get context and build messages
+    const { messages, model } = await service.buildMessagesForStreaming(
       sanitizedMessage,
+      language,
       body.namespace
     );
 
-    // Return successful response
-    return NextResponse.json({
-      message: response,
-      sources: sources.length > 0 ? sources : undefined,
+    // Create streaming response using AI SDK
+    const result = await streamText({
+      model: openai(model),
+      messages,
+      temperature: 0,
+      maxTokens: 1000,
     });
+
+    return result.toDataStreamResponse();
 
   } catch (error) {
     console.error('Chat API error:', error);
@@ -82,7 +90,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
     if (error instanceof Error) {
       // Handle missing environment variables
       if (error.message.includes('Missing required environment variables')) {
-        return NextResponse.json(
+        return Response.json(
           { 
             error: 'Service configuration error. Please check environment variables.',
             code: 'CONFIG_ERROR',
@@ -94,7 +102,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       
       // Check for API-specific errors
       if (error.message.includes('OpenAI API error')) {
-        return NextResponse.json(
+        return Response.json(
           { 
             error: 'AI service temporarily unavailable. Please try again.',
             code: 'AI_SERVICE_ERROR',
@@ -105,7 +113,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       }
       
       if (error.message.includes('Pinecone API error')) {
-        return NextResponse.json(
+        return Response.json(
           { 
             error: 'Document search service temporarily unavailable. Please try again.',
             code: 'SEARCH_SERVICE_ERROR',
@@ -116,7 +124,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       }
       
       if (error.message.includes('Failed to generate embedding')) {
-        return NextResponse.json(
+        return Response.json(
           { 
             error: 'Unable to process your question. Please try rephrasing.',
             code: 'PROCESSING_ERROR'
@@ -127,7 +135,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
     }
 
     // Generic server error
-    return NextResponse.json(
+    return Response.json(
       { 
         error: 'An unexpected error occurred. Please try again.',
         code: 'INTERNAL_ERROR',

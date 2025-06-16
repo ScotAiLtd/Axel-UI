@@ -6,6 +6,36 @@
 import env from '@/config/env';
 import { DocumentSource } from '@/types/chat';
 
+interface LanguagePrompts {
+  systemPrompt: string;
+  userPrompt: string;
+}
+
+const LANGUAGE_PROMPTS: Record<string, LanguagePrompts> = {
+  en: {
+    systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in English in markdown format. 
+Do not reply with 'I'm developed by the OpenAI Team.' 
+If a user asks about the development team, respond with 'engineers at ScotAI.' 
+Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
+Don't answer if the question is out of context`,
+    userPrompt: `Provide the response first.
+If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
+\n Provide a list of the conflicting or unspecified items or details from my request.
+\n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,`
+  },
+  pl: {
+    systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in Polish in markdown format. 
+Do not reply with 'I'm developed by the OpenAI Team.' 
+If a user asks about the development team, respond with 'engineers at ScotAI.' 
+Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
+Don't answer if the question is out of context`,
+    userPrompt: `Provide the response first.
+If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
+\n Provide a list of the conflicting or unspecified items or details from my request.
+\n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,`
+  }
+};
+
 export class OpenAIService {
   private apiKey: string;
   private model: string;
@@ -20,18 +50,16 @@ export class OpenAIService {
    */
   async generateResponse(
     userMessage: string,
-    context: DocumentSource[]
+    context: DocumentSource[],
+    language: string = 'en'
   ): Promise<string> {
     try {
-      const systemPrompt = this.buildSystemPrompt(context);
+      const languagePrompts = LANGUAGE_PROMPTS[language] || LANGUAGE_PROMPTS.en;
       const contextText = context
         .map((source) => source.content)
         .join('\n\n');
       
-      const userPrompt = `Provide the response first.
-If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
-\n Provide a list of the conflicting or unspecified items or details from my request.
-\n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,
+      const fullUserPrompt = `${languagePrompts.userPrompt}
 
 \n----------------\n
 
@@ -51,11 +79,11 @@ USER INPUT: ${userMessage}`;
           messages: [
             {
               role: 'system',
-              content: systemPrompt,
+              content: languagePrompts.systemPrompt,
             },
             {
               role: 'user',
-              content: userPrompt,
+              content: fullUserPrompt,
             },
           ],
           temperature: 0,
@@ -85,18 +113,44 @@ USER INPUT: ${userMessage}`;
   }
 
   /**
-   * Build system prompt with context from retrieved documents
+   * Build messages for streaming with retrieved context
    */
-  private buildSystemPrompt(context: DocumentSource[]): string {
-    const contextText = context
-      .map((source, index) => `[${index + 1}] ${source.content}`)
-      .join('\n\n');
+  async buildStreamingMessages(
+    userMessage: string,
+    context: DocumentSource[],
+    language: string = 'en'
+  ): Promise<{ messages: Array<{role: string, content: string}>, model: string }> {
+    try {
+      const languagePrompts = LANGUAGE_PROMPTS[language] || LANGUAGE_PROMPTS.en;
+      const contextText = context
+        .map((source) => source.content)
+        .join('\n\n');
+      
+      const fullUserPrompt = `${languagePrompts.userPrompt}
 
-    return `Use the following pieces of context (or previous conversation if needed) to answer the user's question in English in markdown format. 
-Do not reply with 'I'm developed by the OpenAI Team.' 
-If a user asks about the development team, respond with 'engineers at ScotAI.' 
-Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
-Don't answer if the question is out of context`;
+\n----------------\n
+
+CONTEXT:
+${contextText}
+
+USER INPUT: ${userMessage}`;
+
+      const messages = [
+        {
+          role: 'system',
+          content: languagePrompts.systemPrompt,
+        },
+        {
+          role: 'user', 
+          content: fullUserPrompt,
+        },
+      ];
+
+      return { messages, model: this.model };
+    } catch (error) {
+      console.error('Error building streaming messages:', error);
+      throw new Error('Failed to build streaming messages');
+    }
   }
 
   /**
