@@ -119,7 +119,7 @@ USER INPUT: ${userMessage}`;
     userMessage: string,
     context: DocumentSource[],
     language: string = 'en'
-  ): Promise<{ messages: Array<{role: string, content: string}>, model: string }> {
+  ): Promise<{ messages: Array<{role: 'system' | 'user' | 'assistant', content: string}>, model: string }> {
     try {
       const languagePrompts = LANGUAGE_PROMPTS[language] || LANGUAGE_PROMPTS.en;
       const contextText = context
@@ -137,11 +137,11 @@ USER INPUT: ${userMessage}`;
 
       const messages = [
         {
-          role: 'system',
+          role: 'system' as const,
           content: languagePrompts.systemPrompt,
         },
         {
-          role: 'user', 
+          role: 'user' as const, 
           content: fullUserPrompt,
         },
       ];

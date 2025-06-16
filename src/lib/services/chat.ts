@@ -50,7 +50,7 @@ export class ChatService {
     message: string,
     language: string = 'en',
     namespace?: string
-  ): Promise<{ messages: Array<{role: string, content: string}>, model: string }> {
+  ): Promise<{ messages: Array<{role: 'system' | 'user' | 'assistant', content: string}>, model: string }> {
     try {
       // Search for relevant documents
       const sources = await this.pineconeService.searchSimilarDocuments(
