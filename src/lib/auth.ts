@@ -1,9 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import { AuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
 import type { DefaultSession } from "next-auth";
-
 
 interface ExtendedSession extends DefaultSession {
   user: {
@@ -14,17 +12,33 @@ interface ExtendedSession extends DefaultSession {
 export const authConfig: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    {
+      id: "azure-ad-saml",
+      name: "Azure Active Directory",
+      type: "oauth",
+      wellKnown: undefined,
       authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
+        url: "https://login.microsoftonline.com/7001f45d-eb22-4507-836a-8f0a934324bf/saml2",
+        params: {}
+      },
+      token: {
+        url: `${process.env.NEXTAUTH_URL}/api/auth/saml/callback`,
+      },
+      userinfo: {
+        url: `${process.env.NEXTAUTH_URL}/api/auth/saml/userinfo`,
+      },
+      profile: (profile: any) => {
+        return {
+          id: profile.sub || profile.email || profile.nameidentifier,
+          name: profile.name || `${profile.givenname || ''} ${profile.surname || ''}`.trim(),
+          email: profile.emailaddress || profile.email,
+          image: null,
         }
-      }
-    }),
+      },
+      clientId: "axle-hr-portal", // This is our Entity ID
+      clientSecret: "not-used-for-saml", // SAML doesn't use client secret
+      checks: ["none"], // Disable PKCE for SAML
+    },
   ],
   pages: {
     signIn: "/",

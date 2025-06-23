@@ -147,14 +147,39 @@ function AuthErrorContent() {
  * Displays detailed error information when Azure AD authentication fails
  * with user-friendly messages and actionable next steps.
  */
-export default function AuthErrorPage() {
+export default function AuthError() {
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Authentication Error
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            There was a problem with your authentication
+          </p>
+        </div>
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <div className="space-y-6">
+            <div>
+              <p className="text-sm text-gray-700">
+                <strong>Error:</strong> {error || 'Unknown authentication error'}
+              </p>
+            </div>
+            <div>
+              <Link 
+                href="/"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Try Again
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
-    }>
-      <AuthErrorContent />
-    </Suspense>
-  )
+    </div>
+  );
 } 

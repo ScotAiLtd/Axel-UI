@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Expand, Trash, Send, Loader2, AlertCircle, Copy, Check, Mic, MicOff } from "lucide-react"
+import { Expand, Trash, Send, Loader2, AlertCircle, Copy, Check, Mic, MicOff, LogOut } from "lucide-react"
 import { Message, ChatRequest, ChatResponse, ApiErrorResponse } from "@/types/chat"
 import ReactMarkdown from 'react-markdown'
 
-// Add this interface near the top with other interfaces
+
 interface Language {
   code: string;
   name: string;
@@ -339,11 +339,23 @@ export default function ChatInterface() {
     }
   }
 
+  const handleLogout = () => {
+    // Simple logout - redirect to our logout endpoint
+    window.location.href = '/api/auth/logout'
+  }
+
   return (
     <div className={`chat-panel flex flex-col h-full w-full ${isFullscreen ? "fixed inset-0 z-50" : ""}`}>
       <div className="panel-header flex justify-between items-center p-2 sm:p-4 bg-white border-b border-border z-10">
         <h2 className="text-base sm:text-lg font-semibold text-primary">Knowledge Assistant</h2>
         <div className="header-controls flex gap-2">
+          <button 
+            onClick={handleLogout}
+            className="bg-transparent border-none text-muted-foreground hover:bg-red-50 hover:text-red-600 p-2 rounded transition-all"
+            title="Logout"
+          >
+            <LogOut size={18} />
+          </button>
           <button 
             onClick={clearChat}
             className="bg-transparent border-none text-muted-foreground hover:bg-secondary hover:text-primary p-2 rounded transition-all"

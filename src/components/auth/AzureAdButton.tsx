@@ -11,12 +11,6 @@ interface AzureAdButtonProps {
   disabled?: boolean
 }
 
-/**
- * Azure AD authentication button component
- * 
- * Professional Microsoft Azure AD sign-in button following Microsoft's
- * design guidelines with proper loading states and accessibility features.
- */
 export function AzureAdButton({ 
   className = "",
   onAuthStart,
@@ -32,11 +26,8 @@ export function AzureAdButton({
     // Notify parent component that authentication is starting
     onAuthStart?.()
     
-    // Simulate Azure AD redirect delay for better UX
-    setTimeout(() => {
-      // In real implementation, this would redirect to Azure AD
-      router.push("/chat")
-    }, 1500)
+    // Redirect to our SAML login endpoint which will generate proper SAML request
+    window.location.href = '/api/auth/saml/login';
   }
 
   return (
