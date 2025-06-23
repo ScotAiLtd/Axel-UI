@@ -10,6 +10,9 @@ export function middleware(request: NextRequest) {
     console.log('✅ Allowing access to main route /')
     return NextResponse.next()
   }
+  if(pathname === '/chat') {
+
+  }
 
   // Allow access to authentication API routes
   if (pathname.startsWith('/api/auth/')) {
