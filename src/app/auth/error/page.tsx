@@ -141,13 +141,7 @@ function AuthErrorContent() {
   )
 }
 
-/**
- * Authentication Error Page
- * 
- * Displays detailed error information when Azure AD authentication fails
- * with user-friendly messages and actionable next steps.
- */
-export default function AuthError() {
+function AuthErrorDetails() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
 
@@ -181,5 +175,14 @@ export default function AuthError() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function AuthError() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthErrorDetails />
+    </Suspense>
   );
 } 
