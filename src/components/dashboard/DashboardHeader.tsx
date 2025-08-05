@@ -20,8 +20,8 @@ export function DashboardHeader() {
           {/* Left side - Title and description */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
-                <Activity className="h-6 w-6 text-white" />
+              <div className="h-12 w-12 rounded-xl  flex items-center justify-center shadow-lg">
+                <img src="/Ask_Axle_256x256.png" alt="Axle Logo" className="h-full w-full object-contain" />
               </div>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-800 dark:from-slate-100 dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
