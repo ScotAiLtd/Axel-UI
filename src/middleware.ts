@@ -55,7 +55,8 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/chat',
+    '/dashboard',
     '/api/:path*',
-    '/((?!api/auth|_next|favicon.ico|logo.png).*)'
+    '/((?!api/auth|_next|favicon.ico|Ask_Axle_256x256.png).*)'
   ]
 } 

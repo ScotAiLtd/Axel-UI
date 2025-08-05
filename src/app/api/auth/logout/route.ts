@@ -15,6 +15,15 @@ export async function GET(request: NextRequest) {
     path: '/'
   });
 
+  // Clear the user identification cookie
+  response.cookies.set('axle-user', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 0, // Expire immediately
+    path: '/'
+  });
+
   console.log('Auth cookie cleared, redirecting to home');
   return response;
 }

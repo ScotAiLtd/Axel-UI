@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Expand, Trash, Send, Loader2, AlertCircle, Copy, Check, Mic, MicOff, LogOut } from "lucide-react"
+import { Expand, Trash, Send, Loader2, AlertCircle, Copy, Check, Mic, MicOff, LogOut, History, X, Menu, Settings, Activity, MessageSquare } from "lucide-react"
 import { Message, ChatRequest, ChatResponse, ApiErrorResponse } from "@/types/chat"
+import { UserRole } from "@/types/user"
 import ReactMarkdown from 'react-markdown'
 
 
@@ -17,14 +18,192 @@ const languages: Language[] = [
   { code: "pl", name: "Polish", flag: "🇵🇱" }
 ];
 
-export default function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: "Hello! I'm Axle. How can I help you today?",
-      timestamp: "Just now"
+// Changelog data with dates only
+const changelogHistory = [
+  { date: "2024-01-15" },
+  { date: "2024-01-08" },
+  { date: "2024-01-02" },
+  { date: "2023-12-20" },
+  { date: "2023-12-15" },
+  { date: "2023-12-10" },
+  { date: "2023-12-05" },
+  { date: "2023-11-28" },
+  { date: "2023-11-20" },
+  { date: "2023-11-15" }
+];
+
+const feedbackCategories = [
+  { value: "general", label: "General" },
+  { value: "bug", label: "Bug Report" },
+  { value: "feature", label: "Feature Request" },
+  { value: "improvement", label: "Improvement" }
+];
+
+interface FeedbackModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
+  const [title, setTitle] = useState("")
+  const [content, setContent] = useState("")
+  const [category, setCategory] = useState("general")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!title.trim() || !content.trim()) {
+      return
     }
-  ])
+
+    try {
+      setIsSubmitting(true)
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title.trim(),
+          content: content.trim(),
+          category
+        }),
+      })
+
+      if (response.ok) {
+        setSubmitSuccess(true)
+        setTitle("")
+        setContent("")
+        setCategory("general")
+        setTimeout(() => {
+          setSubmitSuccess(false)
+          onClose()
+        }, 2000)
+      } else {
+        throw new Error('Failed to submit feedback')
+      }
+    } catch (error) {
+      console.error('Error submitting feedback:', error)
+      alert('Failed to submit feedback. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[85vh] overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">Send Feedback</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        
+        {submitSuccess ? (
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+              <Check size={32} className="text-green-600" />
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Thank you!</h4>
+            <p className="text-gray-600">Your feedback has been submitted successfully.</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="p-4 space-y-4">
+            <div>
+              <label htmlFor="feedback-category" className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
+              <select
+                id="feedback-category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {feedbackCategories.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label htmlFor="feedback-title" className="block text-sm font-medium text-gray-700 mb-1">
+                Title
+              </label>
+              <input
+                id="feedback-title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Brief description of your feedback"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                maxLength={100}
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="feedback-content" className="block text-sm font-medium text-gray-700 mb-1">
+                Details
+              </label>
+              <textarea
+                id="feedback-content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Please provide detailed feedback..."
+                rows={6}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                required
+                maxLength={1000}
+              />
+              <div className="text-right text-xs text-gray-500 mt-1">
+                {content.length}/1000 characters
+              </div>
+            </div>
+            
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || !title.trim() || !content.trim()}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Feedback'
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default function ChatInterface() {
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true)
   const [inputValue, setInputValue] = useState("")
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -33,12 +212,111 @@ export default function ChatInterface() {
   const [isMicActive, setIsMicActive] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(languages[0])
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false)
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isStatusOpen, setIsStatusOpen] = useState(false)
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false)
+  const [userRole, setUserRole] = useState<UserRole | null>(null)
+  const [isLoadingUser, setIsLoadingUser] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const lastResultIndexRef = useRef<number>(0)
   const baseTextRef = useRef<string>("")
   const finalTranscriptRef = useRef<string>("")
+
+  // Load chat history and user profile on component mount
+  useEffect(() => {
+    loadChatHistory()
+    loadUserProfile()
+  }, [])
+
+  const loadChatHistory = async () => {
+    try {
+      setIsLoadingHistory(true)
+      const response = await fetch('/api/chat/history')
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages)
+        } else {
+          // Set default welcome message if no history
+          setMessages([{
+            role: "assistant",
+            content: "Hello! I'm Axle. How can I help you today?",
+            timestamp: "Just now"
+          }])
+        }
+      } else {
+        // If loading fails, set default welcome message
+        setMessages([{
+          role: "assistant",
+          content: "Hello! I'm Axle. How can I help you today?",
+          timestamp: "Just now"
+        }])
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error)
+      // Set default welcome message on error
+      setMessages([{
+        role: "assistant",
+        content: "Hello! I'm Axle. How can I help you today?",
+        timestamp: "Just now"
+      }])
+    } finally {
+      setIsLoadingHistory(false)
+    }
+  }
+
+  const loadUserProfile = async () => {
+    try {
+      setIsLoadingUser(true)
+      const response = await fetch('/api/user/profile')
+      
+      if (response.ok) {
+        const data = await response.json()
+        setUserRole(data.user.role as UserRole)
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error)
+      // Don't break the UI if loading fails
+    } finally {
+      setIsLoadingUser(false)
+    }
+  }
+
+  const saveChatMessage = async (content: string, role: "user" | "assistant") => {
+    try {
+      await fetch('/api/chat/history', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content, role }),
+      })
+    } catch (error) {
+      console.error('Error saving chat message:', error)
+      // Don't break the UI if saving fails
+    }
+  }
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMenuOpen) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    if (isMenuOpen) {
+      document.addEventListener('click', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [isMenuOpen])
 
   // Initialize speech recognition
   useEffect(() => {
@@ -187,7 +465,17 @@ export default function ChatInterface() {
     }
   }, [inputValue])
 
-  const clearChat = () => {
+  const clearChat = async () => {
+    try {
+      // Delete chat history from database
+      await fetch('/api/chat/history', {
+        method: 'DELETE'
+      })
+    } catch (error) {
+      console.error('Error deleting chat history:', error)
+    }
+    
+    // Clear local state regardless of API result
     setMessages([
       {
         role: "assistant",
@@ -240,6 +528,9 @@ export default function ChatInterface() {
     setInputValue("")
     setIsLoading(true)
     setError(null)
+
+    // Save user message to database
+    saveChatMessage(currentInput, "user")
 
     // Reset speech recognition refs
     baseTextRef.current = ""
@@ -316,6 +607,11 @@ export default function ChatInterface() {
             )
           )
         }
+
+        // Save assistant message to database after streaming completes
+        if (accumulatedResponse.trim()) {
+          saveChatMessage(accumulatedResponse, "assistant")
+        }
       } else {
         throw new Error('No response body received')
       }
@@ -346,8 +642,16 @@ export default function ChatInterface() {
 
   return (
     <div className={`chat-panel flex flex-col h-full w-full ${isFullscreen ? "fixed inset-0 z-50" : ""}`}>
-      <div className="panel-header flex justify-between items-center p-2 sm:p-4 bg-white border-b border-border z-10">
-        <h2 className="text-base sm:text-lg font-semibold text-primary">Knowledge Assistant</h2>
+      <div className="panel-header flex justify-between items-center p-1 sm:p-2 bg-white border-b border-border z-10">
+      
+        <div className="w-16 h-12 relative overflow-hidden flex items-center">
+          <img 
+            src="/Ask_Axle_256x256.png" 
+            alt="Axle Logo" 
+            className="w-full h-auto object-contain"
+          />
+        </div>
+
         <div className="header-controls flex gap-2">
           <button 
             onClick={handleLogout}
@@ -384,7 +688,15 @@ export default function ChatInterface() {
       )}
 
       <div className="chat-messages flex-1 p-2 sm:p-4 overflow-y-auto bg-white flex flex-col gap-3 sm:gap-4">
-        {messages.map((message, index) => {
+        {isLoadingHistory ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 size={20} className="animate-spin" />
+              <span>Loading chat history...</span>
+            </div>
+          </div>
+        ) : (
+          messages.map((message, index) => {
           // Check if this is the currently streaming message
           const isCurrentlyStreaming = isLoading && 
                                      message.role === "assistant" && 
@@ -482,7 +794,7 @@ export default function ChatInterface() {
               )}
             </div>
           )
-        })}
+        }))}
         
         {/* Only show "thinking" loader when loading AND the last message has no content yet */}
         {isLoading && messages.length > 0 && messages[messages.length - 1].role === "assistant" && messages[messages.length - 1].content === "" && (
@@ -595,7 +907,171 @@ export default function ChatInterface() {
         </div>
       </div>
 
-      <div className="mx-2 mb-0 rounded-lg text-center text-[10px] sm:text-xs text-muted-foreground py-0.5">
+      {/* Menu Button */}
+      <div className="relative flex justify-end py-1 px-4 border-t border-border bg-gray-50">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMenuOpen(!isMenuOpen);
+          }}
+          className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700 shadow-sm"
+        >
+          <Menu size={16} />
+        </button>
+
+                 {/* Dropdown Menu */}
+         {isMenuOpen && (
+           <div 
+             onClick={(e) => e.stopPropagation()}
+             className="absolute bottom-full mb-2 right-4 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[180px] overflow-hidden z-50"
+           >
+            <button
+              onClick={() => {
+                setIsChangelogOpen(true);
+                setIsMenuOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700 border-b border-gray-100"
+            >
+              <History size={16} />
+              <span className="text-sm font-medium">Changelog</span>
+            </button>
+            <button
+              onClick={() => {
+                setIsFeedbackOpen(true);
+                setIsMenuOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700 border-b border-gray-100"
+            >
+              <MessageSquare size={16} />
+              <span className="text-sm font-medium">Feedback</span>
+            </button>
+            {/* Only show Admin button for admin users */}
+            {userRole === UserRole.ADMIN && (
+              <button
+                onClick={() => {
+                  window.location.href = '/dashboard';
+                  setIsMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700 border-b border-gray-100"
+              >
+                <Settings size={16} />
+                <span className="text-sm font-medium">Admin</span>
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setIsStatusOpen(true);
+                setIsMenuOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700"
+            >
+              <Activity size={16} />
+              <span className="text-sm font-medium">Axle Status</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+             {/* Changelog Modal */}
+       {isChangelogOpen && (
+         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
+             <div className="flex items-center justify-between p-4 border-b border-gray-200">
+               <h3 className="text-lg font-semibold text-gray-900">Axle Software Changelog</h3>
+               <button
+                 onClick={() => setIsChangelogOpen(false)}
+                 className="text-gray-400 hover:text-gray-600 transition-colors"
+               >
+                 <X size={20} />
+               </button>
+             </div>
+             <div className="p-4 overflow-y-auto max-h-[60vh]">
+               <div className="space-y-3">
+                 {changelogHistory.map((entry, index) => (
+                   <div
+                     key={index}
+                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
+                   >
+                     <div className="flex items-center gap-3">
+                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                       <span className="text-sm font-medium text-gray-700">{entry.date}</span>
+                     </div>
+                     <div className="text-xs text-gray-500">
+                       Update {index + 1}
+                     </div>
+                   </div>
+                 ))}
+               </div>
+             </div>
+             <div className="p-4 border-t border-gray-200">
+               <button
+                 onClick={() => setIsChangelogOpen(false)}
+                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+               >
+                 Close
+               </button>
+             </div>
+           </div>
+         </div>
+       )}
+
+       {/* Axle Status Modal */}
+       {isStatusOpen && (
+         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
+             <div className="flex items-center justify-between p-4 border-b border-gray-200">
+               <h3 className="text-lg font-semibold text-gray-900">Axle Status</h3>
+               <button
+                 onClick={() => setIsStatusOpen(false)}
+                 className="text-gray-400 hover:text-gray-600 transition-colors"
+               >
+                 <X size={20} />
+               </button>
+             </div>
+             <div className="p-6">
+               <div className="text-center">
+                 <div className="flex items-center justify-center gap-3 mb-4">
+                   <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+                   <span className="text-2xl font-semibold text-green-600">LIVE</span>
+                 </div>
+                 <p className="text-gray-600 text-sm mb-6">
+                   All systems are operational and running smoothly.
+                 </p>
+                 <div className="space-y-3">
+                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
+                     <span className="text-sm font-medium text-gray-700">Chat Service</span>
+                     <span className="text-sm font-semibold text-green-600">Live</span>
+                   </div>
+                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
+                     <span className="text-sm font-medium text-gray-700">Database</span>
+                     <span className="text-sm font-semibold text-green-600">Live</span>
+                   </div>
+                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
+                     <span className="text-sm font-medium text-gray-700">API Gateway</span>
+                     <span className="text-sm font-semibold text-green-600">Live</span>
+                   </div>
+                 </div>
+               </div>
+             </div>
+             <div className="p-4 border-t border-gray-200">
+               <button
+                 onClick={() => setIsStatusOpen(false)}
+                 className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium"
+               >
+                 Close
+               </button>
+             </div>
+           </div>
+         </div>
+       )}
+
+       {/* Feedback Modal */}
+       <FeedbackModal 
+         isOpen={isFeedbackOpen}
+         onClose={() => setIsFeedbackOpen(false)}
+       />
+
+      <div className="mx-2 mb-1 rounded-lg text-center text-[9px] sm:text-[10px] text-muted-foreground py-0">
         Brought to you by <span className="font-semibold text-primary">ScotAi</span>, powered by <span className="font-semibold text-accent">mAint</span>
       </div>
     </div>

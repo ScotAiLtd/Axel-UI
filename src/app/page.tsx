@@ -58,15 +58,13 @@ export default function HomePage() {
                   >
                     <div className="mb-3 w-40 h-40 relative">
                       <img 
-                        src="/logo.png" 
+                        src="/Ask_Axle_256x256.png" 
                         alt="Axle Logo" 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <span className={`text-4xl font-bold ${TITLE_COLOR}`}>
-                      Axle
-                    </span>
-                    <span className={`text-sm font-medium mt-1 ${SUBTITLE_COLOR}`}>
+                    
+                    <span className={`text-2xl font-bold mt-1 ${SUBTITLE_COLOR}`}>
                       People Management Toolkit
                     </span>
                   </motion.div>
