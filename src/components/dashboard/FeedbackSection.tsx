@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { MessageSquare, Clock, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react'
+import { MessageSquare, Clock, CheckCircle, XCircle, AlertCircle, Eye, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface FeedbackItem {
   id: string
@@ -43,6 +43,7 @@ export function FeedbackSection() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(true)
 
   useEffect(() => {
     loadFeedback()
@@ -121,17 +122,26 @@ export function FeedbackSection() {
   return (
     <>
       <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <MessageSquare size={20} />
-          User Feedback ({feedback.length})
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <MessageSquare size={20} />
+            User Feedback ({feedback.length})
+          </h3>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label={isCollapsed ? 'Expand' : 'Collapse'}
+          >
+            {isCollapsed ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+          </button>
+        </div>
         
-        {feedback.length === 0 ? (
+        {!isCollapsed && feedback.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <MessageSquare size={48} className="mx-auto mb-4 text-gray-300" />
             <p>No feedback submitted yet.</p>
           </div>
-        ) : (
+        ) : !isCollapsed ? (
           <div className="space-y-4">
             {feedback.map((item) => {
               const StatusIcon = statusIcons[item.status as keyof typeof statusIcons]
@@ -157,7 +167,7 @@ export function FeedbackSection() {
                       
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <span>
-                          From: {item.user.email || 'Unknown User'}
+                          From: {item.user.email ? (item.user.email.startsWith('>') ? item.user.email.slice(1) : item.user.email) : 'Unknown User'}
                         </span>
                         <span>
                           {new Date(item.createdAt).toLocaleDateString()}
@@ -192,7 +202,7 @@ export function FeedbackSection() {
               )
             })}
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Feedback Detail Modal */}
@@ -235,7 +245,7 @@ export function FeedbackSection() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
                   <p className="text-gray-600">
-                    {selectedFeedback.user.email || 'Unknown User'}
+                    {selectedFeedback.user.email ? (selectedFeedback.user.email.startsWith('>') ? selectedFeedback.user.email.slice(1) : selectedFeedback.user.email) : 'Unknown User'}
                   </p>
                 </div>
                 

@@ -92,7 +92,7 @@ export function TopUsersCard() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {user.email}
+                      {user.email.startsWith('>') ? user.email.slice(1) : user.email}
                     </p>
                   </div>
                 </div>

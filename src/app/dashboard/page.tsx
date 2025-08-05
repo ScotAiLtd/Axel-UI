@@ -7,6 +7,7 @@ import { ChartSection } from '@/components/dashboard/ChartSection'
 import { LastScrapingBox } from '@/components/dashboard/LastScrapingBox'
 import { FeedbackSection } from '@/components/dashboard/FeedbackSection'
 import { TopUsersCard } from '@/components/dashboard/TopUsersCard'
+import { UserManagementSection } from '@/components/dashboard/UserManagementSection'
 
 export default function DashboardPage() {
   return (
@@ -70,6 +71,20 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* User Management Section */}
+          <div className="space-y-6 mb-8">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+                User Management
+              </h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent dark:from-slate-700 ml-4" />
+            </div>
+            
+            <div className="transform transition-all duration-300 hover:scale-[1.005] hover:shadow-xl">
+              <UserManagementSection />
+            </div>
+          </div>
+
           {/* Bottom Section - Full Width */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -88,4 +103,4 @@ export default function DashboardPage() {
       </div>
     </div>
   )
-} 
+}
