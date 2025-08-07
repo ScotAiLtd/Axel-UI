@@ -25,7 +25,7 @@ export function DashboardHeader() {
               </div>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-800 dark:from-slate-100 dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                  Axel Dashboard
+                  Axle Dashboard
                 </h1>
                 <p className="text-slate-600 dark:text-slate-400 font-medium">
                   Analytics & Administration Portal

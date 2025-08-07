@@ -2,8 +2,8 @@ import React from 'react'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Admin Dashboard | Axel',
-  description: 'Analytics and administration dashboard for Axel',
+  title: 'Admin Dashboard | Axle',
+  description: 'Analytics and administration dashboard for Axle',
 }
 
 export default function DashboardLayout({
@@ -22,7 +22,7 @@ export default function DashboardLayout({
                 <span className="text-white font-bold text-sm">A</span>
               </div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                Axel Admin
+                Axle Admin
               </h1>
             </div>
           </div>
