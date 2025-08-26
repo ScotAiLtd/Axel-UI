@@ -68,7 +68,7 @@ export function MetricsCards() {
     },
     {
       title: 'Chat Sessions',
-      value: metrics ? (metrics.totalChatMessages/2).toString() : '0',
+      value: metrics ? Math.floor(metrics.totalChatMessages/2).toString() : '0',
       icon: <MessageSquare className="h-6 w-6 text-green-500" />
     }
   ]

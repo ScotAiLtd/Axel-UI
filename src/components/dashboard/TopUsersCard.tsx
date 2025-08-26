@@ -7,6 +7,7 @@ interface TopUser {
   rank: number
   email: string
   messageCount: number
+  chatSessions: number
 }
 
 export function TopUsersCard() {
@@ -85,19 +86,19 @@ export function TopUsersCard() {
             </div>
           ) : (
             topUsers.map((user) => (
-              <div key={user.rank} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-medium text-sm">
+              <div key={user.rank} className="flex items-center justify-between gap-2">
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-medium text-sm flex-shrink-0">
                     {user.rank}
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate" title={user.email.startsWith('>') ? user.email.slice(1) : user.email}>
                       {user.email.startsWith('>') ? user.email.slice(1) : user.email}
                     </p>
                   </div>
                 </div>
-                <Badge variant="outline" className="text-xs">
-                  {user.messageCount/2} messages
+                <Badge variant="outline" className="text-xs flex-shrink-0">
+                  {user.chatSessions || Math.floor(user.messageCount/2)} messages
                 </Badge>
               </div>
             ))

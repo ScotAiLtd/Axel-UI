@@ -18,19 +18,22 @@ const languages: Language[] = [
   { code: "pl", name: "Polish", flag: "🇵🇱" }
 ];
 
-// Changelog data with dates only
-const changelogHistory = [
-  { date: "2024-01-15" },
-  { date: "2024-01-08" },
-  { date: "2024-01-02" },
-  { date: "2023-12-20" },
-  { date: "2023-12-15" },
-  { date: "2023-12-10" },
-  { date: "2023-12-05" },
-  { date: "2023-11-28" },
-  { date: "2023-11-20" },
-  { date: "2023-11-15" }
-];
+// Changelog data - will be loaded from API
+interface ChangelogEntry {
+  id: string
+  title: string
+  description?: string
+  version?: string
+  createdAt: string
+}
+
+interface SystemStatus {
+  id: string
+  status: string
+  message: string
+  isActive: boolean
+  createdAt: string
+}
 
 const feedbackCategories = [
   { value: "general", label: "General" },
@@ -218,6 +221,8 @@ export default function ChatInterface() {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false)
   const [userRole, setUserRole] = useState<UserRole | null>(null)
   const [isLoadingUser, setIsLoadingUser] = useState(true)
+  const [changelogEntries, setChangelogEntries] = useState<ChangelogEntry[]>([])
+  const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
@@ -225,10 +230,12 @@ export default function ChatInterface() {
   const baseTextRef = useRef<string>("")
   const finalTranscriptRef = useRef<string>("")
 
-  // Load chat history and user profile on component mount
+  // Load chat history, user profile, changelog, and status on component mount
   useEffect(() => {
     loadChatHistory()
     loadUserProfile()
+    loadChangelog()
+    loadSystemStatus()
   }, [])
 
   const loadChatHistory = async () => {
@@ -283,6 +290,30 @@ export default function ChatInterface() {
       // Don't break the UI if loading fails
     } finally {
       setIsLoadingUser(false)
+    }
+  }
+
+  const loadChangelog = async () => {
+    try {
+      const response = await fetch('/api/changelog')
+      if (response.ok) {
+        const data = await response.json()
+        setChangelogEntries(data.changelog)
+      }
+    } catch (error) {
+      console.error('Error loading changelog:', error)
+    }
+  }
+
+  const loadSystemStatus = async () => {
+    try {
+      const response = await fetch('/api/system-status')
+      if (response.ok) {
+        const data = await response.json()
+        setSystemStatus(data.status)
+      }
+    } catch (error) {
+      console.error('Error loading system status:', error)
     }
   }
 
@@ -987,20 +1018,36 @@ export default function ChatInterface() {
              </div>
              <div className="p-4 overflow-y-auto max-h-[60vh]">
                <div className="space-y-3">
-                 {changelogHistory.map((entry, index) => (
-                   <div
-                     key={index}
-                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
-                   >
-                     <div className="flex items-center gap-3">
-                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                       <span className="text-sm font-medium text-gray-700">{entry.date}</span>
-                     </div>
-                     <div className="text-xs text-gray-500">
-                       Update {index + 1}
-                     </div>
+                 {changelogEntries.length === 0 ? (
+                   <div className="text-center py-6 text-gray-500">
+                     <p>No changelog entries available.</p>
                    </div>
-                 ))}
+                 ) : (
+                   changelogEntries.map((entry) => (
+                     <div
+                       key={entry.id}
+                       className="p-3 bg-gray-50 rounded-lg border border-gray-100"
+                     >
+                       <div className="flex items-start justify-between mb-2">
+                         <div className="flex items-center gap-2">
+                           <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
+                           <span className="text-sm font-medium text-gray-900">{entry.title}</span>
+                         </div>
+                         {entry.version && (
+                           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                             {entry.version}
+                           </span>
+                         )}
+                       </div>
+                       {entry.description && (
+                         <p className="text-sm text-gray-600 ml-4 mb-2">{entry.description}</p>
+                       )}
+                       <div className="text-xs text-gray-500 ml-4">
+                         {new Date(entry.createdAt).toLocaleDateString()}
+                       </div>
+                     </div>
+                   ))
+                 )}
                </div>
              </div>
              <div className="p-4 border-t border-gray-200">
@@ -1030,33 +1077,51 @@ export default function ChatInterface() {
              </div>
              <div className="p-6">
                <div className="text-center">
-                 <div className="flex items-center justify-center gap-3 mb-4">
-                   <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-                   <span className="text-2xl font-semibold text-green-600">LIVE</span>
-                 </div>
-                 <p className="text-gray-600 text-sm mb-6">
-                   All systems are operational and running smoothly.
-                 </p>
-                 <div className="space-y-3">
-                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
-                     <span className="text-sm font-medium text-gray-700">Chat Service</span>
-                     <span className="text-sm font-semibold text-green-600">Live</span>
+                 {systemStatus ? (
+                   <>
+                     <div className="flex items-center justify-center gap-3 mb-4">
+                       {systemStatus.status === 'live' && (
+                         <>
+                           <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+                           <span className="text-2xl font-semibold text-green-600">LIVE</span>
+                         </>
+                       )}
+                       {systemStatus.status === 'maintenance' && (
+                         <>
+                           <div className="w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>
+                           <span className="text-2xl font-semibold text-yellow-600">MAINTENANCE</span>
+                         </>
+                       )}
+                       {systemStatus.status === 'issue' && (
+                         <>
+                           <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                           <span className="text-2xl font-semibold text-red-600">ISSUE</span>
+                         </>
+                       )}
+                     </div>
+                     <p className="text-gray-600 text-sm mb-6">
+                       {systemStatus.message}
+                     </p>
+                     <div className="text-xs text-gray-500">
+                       Last updated: {new Date(systemStatus.createdAt).toLocaleString()}
+                     </div>
+                   </>
+                 ) : (
+                   <div className="text-center py-6 text-gray-500">
+                     <p>Loading status...</p>
                    </div>
-                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
-                     <span className="text-sm font-medium text-gray-700">Database</span>
-                     <span className="text-sm font-semibold text-green-600">Live</span>
-                   </div>
-                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
-                     <span className="text-sm font-medium text-gray-700">API Gateway</span>
-                     <span className="text-sm font-semibold text-green-600">Live</span>
-                   </div>
-                 </div>
+                 )}
                </div>
              </div>
              <div className="p-4 border-t border-gray-200">
                <button
                  onClick={() => setIsStatusOpen(false)}
-                 className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium"
+                 className={`w-full text-white py-2 px-4 rounded-lg transition-colors duration-200 font-medium ${
+                   systemStatus?.status === 'live' ? 'bg-green-600 hover:bg-green-700' :
+                   systemStatus?.status === 'maintenance' ? 'bg-yellow-600 hover:bg-yellow-700' :
+                   systemStatus?.status === 'issue' ? 'bg-red-600 hover:bg-red-700' :
+                   'bg-gray-600 hover:bg-gray-700'
+                 }`}
                >
                  Close
                </button>

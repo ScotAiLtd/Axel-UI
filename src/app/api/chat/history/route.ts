@@ -120,6 +120,16 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Also save a copy to AdminChatHistory for admin access
+    await prisma.adminChatHistory.create({
+      data: {
+        content,
+        role,
+        userId: user.id,
+        originalMessageId: chatMessage.id
+      }
+    });
+
     return NextResponse.json({ 
       success: true, 
       messageId: chatMessage.id 
@@ -136,7 +146,8 @@ export async function POST(request: NextRequest) {
 
 /**
  * DELETE /api/chat/history
- * Delete all chat history for current user
+ * Delete all chat history for current user (from ChatMessage only)
+ * AdminChatHistory is preserved for admin access
  */
 export async function DELETE(request: NextRequest) {
   try {
@@ -161,7 +172,8 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Delete all chat messages for this user
+    // Delete all chat messages for this user (only from ChatMessage table)
+    // AdminChatHistory is preserved for admin access
     const deletedCount = await prisma.chatMessage.deleteMany({
       where: { userId: user.id }
     });

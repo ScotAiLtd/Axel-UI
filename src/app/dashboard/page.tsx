@@ -8,6 +8,8 @@ import { LastScrapingBox } from '@/components/dashboard/LastScrapingBox'
 import { FeedbackSection } from '@/components/dashboard/FeedbackSection'
 import { TopUsersCard } from '@/components/dashboard/TopUsersCard'
 import { UserManagementSection } from '@/components/dashboard/UserManagementSection'
+import { ChangelogManagementSection } from '@/components/dashboard/ChangelogManagementSection'
+import { SystemStatusManagementSection } from '@/components/dashboard/SystemStatusManagementSection'
 
 export default function DashboardPage() {
   return (
@@ -36,11 +38,11 @@ export default function DashboardPage() {
                 </div>
               </div>
               
-              {/* Charts Section */}
+              {/* Activity Overview */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-                    Analytics Overview
+                    Activity Overview
                   </h2>
                   <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent dark:from-slate-700 ml-4" />
                 </div>
@@ -82,6 +84,19 @@ export default function DashboardPage() {
             
             <div className="transform transition-all duration-300 hover:scale-[1.005] hover:shadow-xl">
               <UserManagementSection />
+            </div>
+          </div>
+
+          {/* Admin Management Sections */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-start">
+            {/* Changelog Management */}
+            <div className="transform transition-all duration-300 hover:scale-[1.005] hover:shadow-xl">
+              <ChangelogManagementSection />
+            </div>
+            
+            {/* System Status Management */}
+            <div className="transform transition-all duration-300 hover:scale-[1.005] hover:shadow-xl">
+              <SystemStatusManagementSection />
             </div>
           </div>
 

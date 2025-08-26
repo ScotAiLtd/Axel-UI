@@ -55,31 +55,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all users
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        _count: {
-          select: {
-            chatMessages: true
-          }
-        }
-      },
-      orderBy: {
-        email: 'asc'
-      }
-    });
+    // Get all users with their chat message counts using raw query
+    const usersWithMessageCount = await prisma.$queryRaw`
+      SELECT 
+        u.id,
+        u.email,
+        u.role,
+        COALESCE(COUNT(cm.id), 0)::int as "messageCount"
+      FROM "User" u
+      LEFT JOIN "ChatMessage" cm ON u.id = cm."userId"
+      GROUP BY u.id, u.email, u.role
+      ORDER BY COUNT(cm.id) DESC, u.email ASC
+    ` as Array<{id: string; email: string; role: string; messageCount: number}>;
 
     return NextResponse.json({ 
       success: true,
-      users: users.map(user => ({
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        messageCount: user._count.chatMessages
-      }))
+      users: usersWithMessageCount
     });
 
   } catch (error) {

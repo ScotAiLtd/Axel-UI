@@ -133,7 +133,7 @@ export function UserManagementSection() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-6 h-[600px] flex flex-col">
       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <Users size={20} />
         User Management ({users.length})
@@ -145,8 +145,9 @@ export function UserManagementSection() {
           <p>No users found.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white">
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto overflow-x-auto">
+            <table className="min-w-full bg-white">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -177,7 +178,7 @@ export function UserManagementSection() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.messageCount}
+                      {user.messageCount/2}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
@@ -260,7 +261,8 @@ export function UserManagementSection() {
                 </React.Fragment>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
     </div>

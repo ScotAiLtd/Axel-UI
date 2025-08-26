@@ -52,6 +52,7 @@ model User {
   sessions      Session[]
   posts         Post[]
   chatMessages  ChatMessage[]
+  adminChatHistory AdminChatHistory[]
   feedback      Feedback[]
 }
 
@@ -95,4 +96,34 @@ model Feedback {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AdminChatHistory {
+  id               String   @id @default(cuid())
+  content          String   @db.Text
+  role             String   // "user" or "assistant"
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  originalMessageId String? // Reference to original ChatMessage (if still exists)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Changelog {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  version     String?
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SystemStatus {
+  id          String   @id @default(cuid())
+  status      String   // "live", "maintenance", "issue"
+  message     String   @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 } 

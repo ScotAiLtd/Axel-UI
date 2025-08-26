@@ -23,6 +23,7 @@ function getCurrentUser(request: NextRequest): string | null {
 /**
  * GET /api/dashboard/chat-history
  * Get chat history for a specific user (admin only)
+ * Fetches from AdminChatHistory which persists even when user deletes their chat
  */
 export async function GET(request: NextRequest) {
   try {
@@ -65,8 +66,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get chat messages for the user
-    const chatMessages = await prisma.chatMessage.findMany({
+    // Get chat messages for the user from AdminChatHistory (persistent admin copy)
+    const chatMessages = await prisma.adminChatHistory.findMany({
       where: {
         userId: userId
       },
@@ -76,6 +77,7 @@ export async function GET(request: NextRequest) {
         role: true,
         createdAt: true,
         userId: true,
+        originalMessageId: true,
         user: {
           select: {
             email: true

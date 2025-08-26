@@ -6,103 +6,46 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
- 
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
- 
-    --primary: 222 47% 47%; /* #4a6da7 */
+    --primary: 222 47% 47%;
     --primary-foreground: 0 0% 98%;
- 
-    --secondary: 210 20% 96%; /* #f3f4f6 */
+    --secondary: 210 20% 96%;
     --secondary-foreground: 0 0% 9%;
- 
     --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%; /* #6b7280 */
- 
-    --accent: 217 91% 60%; /* #3b82f6 */
+    --muted-foreground: 220 9% 46%;
+    --accent: 217 91% 60%;
     --accent-foreground: 0 0% 98%;
- 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 220 13% 91%; /* #e5e7eb */
+    --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 224 71% 45%;
- 
     --radius: 0.5rem;
-
-    /* Chat specific colors */
-    --user-message-bg: 213 100% 96%; /* #e9f2ff */
-    --assistant-message-bg: 0 0% 98%; /* #f9f9f9 */
-    --success-green: 142 71% 45%; /* #10b981 */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
- 
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-        --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
  
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
- 
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
- 
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
- 
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 98%;
- 
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
- 
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
- 
     --accent: 217 91% 60%;
     --accent-foreground: 0 0% 98%;
- 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
- 
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
-
-    /* Chat specific colors for dark mode */
-    --user-message-bg: 213 70% 20%;
-    --assistant-message-bg: 0 0% 15%;
-
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
  
@@ -112,79 +55,15 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
     height: 100vh;
     overflow: hidden;
   }
 }
 
-/* Chat animations are now defined in tailwind.config.ts */
-
-/* Chat component styles */
 @layer components {
-  /* Fullscreen mode styles */
-  body.chat-fullscreen .chat-panel {
-    width: 100% !important;
-    flex-grow: 1 !important;
-    height: 100vh !important;
-  }
-  
-  body.chat-fullscreen .document-panel {
-    display: none !important;
-  }
-  
-  body.document-fullscreen .document-panel {
-    width: 100% !important;
-    flex-grow: 1 !important;
-    height: 100vh !important;
-  }
-  
-  body.document-fullscreen .chat-panel {
-    display: none !important;
-  }
-  
-  /* Mobile responsiveness */
-  @media (max-width: 768px) {
-    #chat-container {
-      flex-direction: column !important;
-      height: 100vh !important;
-      overflow: hidden !important;
-    }
-    
-    .document-panel, .chat-panel {
-      width: 100% !important;
-      height: 50vh !important;
-    }
-    
-    /* Fullscreen on mobile takes full height */
-    body.chat-fullscreen .chat-panel {
-      height: 100vh !important;
-    }
-    
-    body.document-fullscreen .document-panel {
-      height: 100vh !important;
-    }
-    
-    /* Adjust header text size for mobile */
-    .panel-header h2 {
-      font-size: 0.9rem !important;
-    }
-    
-    /* Make messages more compact on mobile */
-    .message {
-      padding: 8px 12px !important;
-      max-width: 90% !important;
-    }
-    
-    .message-content {
-      font-size: 0.9rem !important;
-    }
-    
-    .message-time {
-      font-size: 0.65rem !important;
-    }
-  }
+  /* Basic panel styles */
   .document-panel, .chat-panel {
     @apply flex-1 flex flex-col h-full transition-all duration-300;
   }
@@ -199,22 +78,6 @@
 
   .panel-header h2 {
     @apply text-lg font-semibold text-primary;
-  }
-
-  .header-controls {
-    @apply flex gap-2;
-  }
-
-  .header-controls button {
-    @apply bg-transparent border-none text-muted-foreground cursor-pointer p-2 rounded transition-all;
-  }
-
-  .header-controls button:hover {
-    @apply bg-secondary text-primary;
-  }
-
-  .document-content {
-    @apply flex-1 overflow-hidden bg-white;
   }
 
   .chat-messages {
@@ -233,22 +96,6 @@
     @apply bg-white self-start rounded-bl-sm;
   }
 
-  .message-content {
-    @apply text-[0.95rem];
-  }
-
-  .message-time {
-    @apply text-[0.7rem] mt-1 text-right;
-  }
-
-  .message.user .message-time {
-    @apply text-[#92C5FD];
-  }
-
-  .message.assistant .message-time {
-    @apply text-black;
-  }
-
   .chat-input-area {
     @apply flex p-4 bg-white border-t border-border;
   }
@@ -256,15 +103,4 @@
   .powered-by {
     @apply text-center text-xs text-muted-foreground py-2 bg-secondary border-t border-border;
   }
-
-  /* Dashboard grid background patterns */
-  .bg-grid-slate-100 {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.05)'%3e%3cpath d='m0 .5h32m-32 32v-32'/%3e%3c/svg%3e");
-  }
-  
-  .bg-grid-slate-700\/25 {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(71 85 105 / 0.25)'%3e%3cpath d='m0 .5h32m-32 32v-32'/%3e%3c/svg%3e");
-  }
-
-  /* Animation classes are now applied directly to elements */
 }

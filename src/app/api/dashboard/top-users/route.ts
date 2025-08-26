@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get users with their chat message counts using raw query
+    // We count total messages and will divide by 2 for chat sessions
     const topUsersData = await prisma.$queryRaw`
       SELECT 
         u.email,
@@ -66,11 +67,13 @@ export async function GET(request: NextRequest) {
       LIMIT 5
     ` as Array<{email: string; messageCount: number}>;
 
-    // Format the response
+    // Format the response - messageCount represents total messages (user + AI)
+    // We keep the raw count for accurate sorting but display will show sessions
     const formattedUsers = topUsersData.map((user, index) => ({
       rank: index + 1,
       email: user.email,
-      messageCount: user.messageCount
+      messageCount: user.messageCount, // Keep raw count for sorting
+      chatSessions: Math.floor(user.messageCount / 2) // Calculate chat sessions
     }));
 
     return NextResponse.json({ 
