@@ -83,10 +83,10 @@ export async function GET(request: NextRequest) {
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // Default to 7 days
     }
 
-    // Get users who have sent messages in the time period
+    // Get users who have sent messages in the time period using AdminChatHistory (persistent admin copy)
     const totalUsers = await prisma.user.count({
       where: {
-        chatMessages: {
+        adminChatHistory: {
           some: {
             createdAt: {
               gte: startDate,
@@ -97,8 +97,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Get total messages in the time period
-    const totalMessages = await prisma.chatMessage.count({
+    // Get total messages in the time period using AdminChatHistory (persistent admin copy)
+    const totalMessages = await prisma.adminChatHistory.count({
       where: {
         createdAt: {
           gte: startDate,

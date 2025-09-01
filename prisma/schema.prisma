@@ -126,4 +126,15 @@ model SystemStatus {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model TopicsAnalytics {
+  id            String   @id @default(cuid())
+  analysis      String   @db.Text
+  messageCount  Int
+  dateRangeFrom DateTime
+  dateRangeTo   DateTime
+  generatedBy   String   // Admin user email who generated it
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 } 

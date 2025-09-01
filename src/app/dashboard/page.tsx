@@ -10,6 +10,7 @@ import { TopUsersCard } from '@/components/dashboard/TopUsersCard'
 import { UserManagementSection } from '@/components/dashboard/UserManagementSection'
 import { ChangelogManagementSection } from '@/components/dashboard/ChangelogManagementSection'
 import { SystemStatusManagementSection } from '@/components/dashboard/SystemStatusManagementSection'
+import { TopicsAnalyticsSection } from '@/components/dashboard/TopicsAnalyticsSection'
 
 export default function DashboardPage() {
   return (
@@ -69,6 +70,11 @@ export default function DashboardPage() {
               {/* Top Users */}
               <div className="transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
                 <TopUsersCard />
+              </div>
+              
+              {/* AI Topics Analytics */}
+              <div className="transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+                <TopicsAnalyticsSection />
               </div>
             </div>
           </div>

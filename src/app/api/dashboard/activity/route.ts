@@ -85,10 +85,10 @@ async function generateActivityData(period: string) {
   // Get data for each interval
   const activityData = await Promise.all(
     intervals.map(async (interval) => {
-      // Get unique active users for this interval
+      // Get unique active users for this interval using AdminChatHistory (persistent admin copy)
       const activeUsers = await prisma.user.count({
         where: {
-          chatMessages: {
+          adminChatHistory: {
             some: {
               createdAt: {
                 gte: interval.start,
@@ -99,8 +99,8 @@ async function generateActivityData(period: string) {
         }
       });
 
-      // Get total messages for this interval
-      const totalMessages = await prisma.chatMessage.count({
+      // Get total messages for this interval using AdminChatHistory (persistent admin copy)
+      const totalMessages = await prisma.adminChatHistory.count({
         where: {
           createdAt: {
             gte: interval.start,

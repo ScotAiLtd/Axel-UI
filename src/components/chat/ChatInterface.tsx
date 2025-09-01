@@ -938,69 +938,79 @@ export default function ChatInterface() {
         </div>
       </div>
 
-      {/* Menu Button */}
-      <div className="relative flex justify-end py-1 px-4 border-t border-border bg-gray-50">
+      {/* Combined Footer with Menu Button */}
+      <div className="relative flex items-center justify-between px-4 py-1 border-t border-border">
+        <div className="flex-1 text-center text-[8px] sm:text-[9px] text-muted-foreground">
+          <div className="text-gray-500 mb-0.5">
+            Axle can make mistakes. Please double-check the responses.
+          </div>
+          <div>
+            Brought to you by <span className="font-semibold text-primary">ScotAi</span>, powered by <span className="font-semibold text-accent">mAint</span>
+          </div>
+        </div>
+        
+        {/* Menu Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             setIsMenuOpen(!isMenuOpen);
           }}
-          className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700 shadow-sm"
+          className="flex items-center justify-center w-6 h-6 bg-transparent border border-gray-300 rounded hover:bg-gray-100 transition-colors duration-200 text-gray-600 ml-2 flex-shrink-0"
         >
-          <Menu size={16} />
+          <Menu size={12} />
         </button>
 
-                 {/* Dropdown Menu */}
-         {isMenuOpen && (
-           <div 
-             onClick={(e) => e.stopPropagation()}
-             className="absolute bottom-full mb-2 right-4 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[180px] overflow-hidden z-50"
+        {/* Dropdown Menu */}
+        {isMenuOpen && (
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="absolute bottom-full mb-2 right-4 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[180px] overflow-hidden z-50"
+          >
+           <button
+             onClick={() => {
+               setIsChangelogOpen(true);
+               setIsMenuOpen(false);
+             }}
+             className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700 border-b border-gray-100"
            >
-            <button
-              onClick={() => {
-                setIsChangelogOpen(true);
-                setIsMenuOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700 border-b border-gray-100"
-            >
-              <History size={16} />
-              <span className="text-sm font-medium">Changelog</span>
-            </button>
-            <button
-              onClick={() => {
-                setIsFeedbackOpen(true);
-                setIsMenuOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700 border-b border-gray-100"
-            >
-              <MessageSquare size={16} />
-              <span className="text-sm font-medium">Feedback</span>
-            </button>
-            {/* Only show Admin button for admin users */}
-            {userRole === UserRole.ADMIN && (
-              <button
-                onClick={() => {
-                  window.location.href = '/dashboard';
-                  setIsMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700 border-b border-gray-100"
-              >
-                <Settings size={16} />
-                <span className="text-sm font-medium">Admin</span>
-              </button>
-            )}
-            <button
-              onClick={() => {
-                setIsStatusOpen(true);
-                setIsMenuOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700"
-            >
-              <Activity size={16} />
-              <span className="text-sm font-medium">Axle Status</span>
-            </button>
-          </div>
-        )}
+             <History size={16} />
+             <span className="text-sm font-medium">Changelog</span>
+           </button>
+           <button
+             onClick={() => {
+               setIsFeedbackOpen(true);
+               setIsMenuOpen(false);
+             }}
+             className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700 border-b border-gray-100"
+           >
+             <MessageSquare size={16} />
+             <span className="text-sm font-medium">Feedback</span>
+           </button>
+           {/* Only show Admin button for admin users */}
+           {userRole === UserRole.ADMIN && (
+             <button
+               onClick={() => {
+                 window.location.href = '/dashboard';
+                 setIsMenuOpen(false);
+               }}
+               className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700 border-b border-gray-100"
+             >
+               <Settings size={16} />
+               <span className="text-sm font-medium">Admin</span>
+             </button>
+           )}
+           <button
+             onClick={() => {
+               setIsStatusOpen(true);
+               setIsMenuOpen(false);
+             }}
+             className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 text-gray-700"
+           >
+             <Activity size={16} />
+             <span className="text-sm font-medium">Axle Status</span>
+           </button>
+         </div>
+       )}
       </div>
 
              {/* Changelog Modal */}
@@ -1136,9 +1146,6 @@ export default function ChatInterface() {
          onClose={() => setIsFeedbackOpen(false)}
        />
 
-      <div className="mx-2 mb-1 rounded-lg text-center text-[9px] sm:text-[10px] text-muted-foreground py-0">
-        Brought to you by <span className="font-semibold text-primary">ScotAi</span>, powered by <span className="font-semibold text-accent">mAint</span>
-      </div>
     </div>
   )
 }

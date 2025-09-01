@@ -54,16 +54,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get users with their chat message counts using raw query
+    // Get users with their chat message counts using AdminChatHistory (persistent admin copy)
     // We count total messages and will divide by 2 for chat sessions
     const topUsersData = await prisma.$queryRaw`
       SELECT 
         u.email,
-        COUNT(cm.id)::int as "messageCount"
+        COUNT(ach.id)::int as "messageCount"
       FROM "User" u
-      INNER JOIN "ChatMessage" cm ON u.id = cm."userId"
+      INNER JOIN "AdminChatHistory" ach ON u.id = ach."userId"
       GROUP BY u.id, u.email
-      ORDER BY COUNT(cm.id) DESC
+      ORDER BY COUNT(ach.id) DESC
       LIMIT 5
     ` as Array<{email: string; messageCount: number}>;
 

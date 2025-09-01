@@ -154,6 +154,51 @@ USER INPUT: ${userMessage}`;
   }
 
   /**
+   * Generate a simple response without context (for analytics)
+   */
+  async generateSimpleResponse(prompt: string): Promise<string> {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini', // Use cheaper model for analytics
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 300,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `OpenAI API error: ${response.statusText} - ${errorData.error?.message || 'Unknown error'}`
+        );
+      }
+
+      const data = await response.json();
+      const generatedResponse = data.choices?.[0]?.message?.content;
+
+      if (!generatedResponse) {
+        throw new Error('No response generated from OpenAI');
+      }
+
+      return generatedResponse.trim();
+    } catch (error) {
+      console.error('Error generating simple OpenAI response:', error);
+      throw new Error('Failed to generate simple response from AI');
+    }
+  }
+
+  /**
    * Health check for OpenAI API
    */
   async healthCheck(): Promise<boolean> {

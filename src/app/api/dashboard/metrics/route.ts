@@ -57,13 +57,15 @@ export async function GET(request: NextRequest) {
     // Get total users count
     const totalUsers = await prisma.user.count();
 
-    // Get total chat messages count (this represents chat sessions/interactions)
-    const totalChatMessages = await prisma.chatMessage.count();
+    // Get total chat messages count from AdminChatHistory (persistent admin copy)
+    // This ensures the count doesn't decrease when users delete their chat history
+    const totalChatMessages = await prisma.adminChatHistory.count();
 
-    // Get unique users who have sent chat messages (active users)
+    // Get unique users who have sent chat messages (active users from AdminChatHistory)
+    // This ensures consistent counting even after users delete their chat history
     const activeChatUsers = await prisma.user.count({
       where: {
-        chatMessages: {
+        adminChatHistory: {
           some: {}
         }
       }
