@@ -818,7 +818,9 @@ export default function ChatInterface() {
                       </button>
                     )}
                   </div>
-                  <div className="message-time text-[0.7rem] text-black text-right">
+                  <div className={`message-time text-[0.7rem] text-right ${
+                    message.role === "user" ? "text-white" : "text-black"
+                  }`}>
                     {message.timestamp}
                   </div>
                 </div>

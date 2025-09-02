@@ -7,7 +7,7 @@ export const env = {
   PINECONE_API_KEY: process.env.PINECONE_API_KEY || '',
   PINECONE_INDEX: process.env.PINECONE_INDEX || '',
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
-  PINECONE_NAMESPACE: process.env.PINECONE_NAMESPACE || 'cma6krcyl000zkarj4pb59tcm',
+  PINECONE_NAMESPACE: process.env.PINECONE_NAMESPACE || 'cmf2nk2zr000713zchvg51ehv',
   OPENAI_MODEL: process.env.OPENAI_MODEL || 'gpt-4o',
 };
 
