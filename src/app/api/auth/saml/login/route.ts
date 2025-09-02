@@ -101,3 +101,4 @@ async function getSAMLMetadata(): Promise<string> {
 </EntityDescriptor>`;
   }
 } 
+//main
