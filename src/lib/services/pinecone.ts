@@ -147,61 +147,7 @@ export class PineconeService {
     }
   }
 
-  /**
-   * View namespace chunks for debugging - use format /cmf2nk2zr000713zchvg51ehv
-   */
-  async viewNamespaceChunks(namespace: string = env.PINECONE_NAMESPACE, limit: number = 50): Promise<void> {
-    try {
-      console.log(`\ud83d\udd0e Viewing chunks in namespace: ${namespace}`);
-
-      const pineconeIndex = this.pinecone.index(this.indexName);
-
-      // Get index stats
-      const stats = await pineconeIndex.describeIndexStats();
-      const namespaceStats = stats.namespaces?.[namespace];
-      console.log(`\ud83d\udcca Namespace stats:`, namespaceStats);
-
-      if (!namespaceStats || namespaceStats.vectorCount === 0) {
-        console.log(`❌ No vectors found in namespace: ${namespace}`);
-        return;
-      }
-
-      // Use broad queries to retrieve chunks
-      const broadQueries = ['document', 'text', 'policy', 'employment', 'training'];
-      const allChunks = new Set<string>();
-
-      for (const query of broadQueries) {
-        try {
-          const vectorStore = await PineconeStore.fromExistingIndex(this.embeddings, {
-            pineconeIndex,
-            namespace: namespace,
-          });
-
-          const results = await (vectorStore as any).similaritySearchWithScore(query, Math.min(limit, 100));
-
-          results.forEach(([doc, score]: [any, number]) => {
-            const content = doc.pageContent || '';
-            const chunkInfo = `Score: ${score.toFixed(3)} | Content: ${content.substring(0, 200)}...`;
-            allChunks.add(chunkInfo);
-          });
-
-          console.log(`\ud83d\udd0d Query "${query}" returned ${results.length} results`);
-        } catch (queryError) {
-          console.warn(`\u26a0\ufe0f Query "${query}" failed:`, queryError);
-        }
-
-        if (allChunks.size >= limit) break;
-      }
-
-      console.log(`\n\ud83d\udccb Found ${allChunks.size} unique chunks in namespace:\n`);
-      Array.from(allChunks).slice(0, limit).forEach((chunk, index) => {
-        console.log(`${index + 1}. ${chunk}\n`);
-      });
-
-    } catch (error) {
-      console.error('\u274c Error viewing namespace chunks:', error);
-    }
-  }
+  
 
   /**
    * Health check for Pinecone connection
