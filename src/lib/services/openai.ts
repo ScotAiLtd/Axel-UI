@@ -87,7 +87,7 @@ USER INPUT: ${userMessage}`;
             },
           ],
           temperature: 0,
-          max_tokens: 1000,
+          max_tokens: 1500,
         }),
       });
 
@@ -165,7 +165,7 @@ USER INPUT: ${userMessage}`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini', // Use cheaper model for analytics
+          model: 'gpt-4o-mini', 
           messages: [
             {
               role: 'user',

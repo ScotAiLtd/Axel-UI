@@ -30,9 +30,9 @@ export class PineconeService {
    * Search for similar documents in Pinecone - exact same method as working application
    */
   async searchSimilarDocuments(
-    query: string, 
+    query: string,
     namespace: string = env.PINECONE_NAMESPACE,
-    topK: number = 6
+    topK: number = 20
   ): Promise<DocumentSource[]> {
     try {
       console.log(`🔍 Pinecone Search Query: "${query}"`);
@@ -47,25 +47,32 @@ export class PineconeService {
         namespace: namespace,
       });
 
-      // This is the exact same call as in the working application
-      const results = await (vectorStore as any).similaritySearch(query, topK);
+      // Use similarity search with scores for better filtering
+      const results = await (vectorStore as any).similaritySearchWithScore(query, topK);
       console.log(`✅ Pinecone search completed. Found ${results.length} matches`);
       console.log('Raw results:', results);
 
-      // Transform results to DocumentSource format
-      const sources: DocumentSource[] = results.map((result: any, index: number) => {
-        const content = result.pageContent || result.metadata?.pageContent || '';
-        
-        console.log(`📊 Result ${index + 1}: Content found`);
-        console.log(`   Content Preview: ${content.substring(0, 100)}${content.length > 100 ? '...' : ''}`);
-        console.log(`   Metadata:`, result.metadata);
-        
-        return {
-          content,
-          metadata: result.metadata || {},
-          score: 0.8, // Default score since similaritySearch doesn't return scores
-        };
-      });
+      // Transform results to DocumentSource format with actual scores
+      const sources: DocumentSource[] = results
+        .filter(([doc, score]: [any, number]) => {
+          // Filter out low-quality matches (adjust threshold as needed)
+          const hasContent = doc.pageContent && doc.pageContent.trim().length > 20;
+          const goodScore = score >= 0.7; // Adjust this threshold based on testing
+          return hasContent && goodScore;
+        })
+        .map(([result, score]: [any, number], index: number) => {
+          const content = result.pageContent || result.metadata?.pageContent || '';
+
+          console.log(`📊 Result ${index + 1}: Score ${score.toFixed(3)}`);
+          console.log(`   Content Preview: ${content.substring(0, 150)}${content.length > 150 ? '...' : ''}`);
+          console.log(`   Metadata:`, result.metadata);
+
+          return {
+            content,
+            metadata: result.metadata || {},
+            score: score,
+          };
+        });
 
       const filteredSources = sources.filter(source => source.content && source.content.trim().length > 0);
       
@@ -137,6 +144,62 @@ export class PineconeService {
     } catch (error) {
       console.error('❌ Error fetching embedded text from Pinecone:', error);
       throw new Error('Failed to fetch embedded text from namespace');
+    }
+  }
+
+  /**
+   * View namespace chunks for debugging - use format /cmf2nk2zr000713zchvg51ehv
+   */
+  async viewNamespaceChunks(namespace: string = env.PINECONE_NAMESPACE, limit: number = 50): Promise<void> {
+    try {
+      console.log(`\ud83d\udd0e Viewing chunks in namespace: ${namespace}`);
+
+      const pineconeIndex = this.pinecone.index(this.indexName);
+
+      // Get index stats
+      const stats = await pineconeIndex.describeIndexStats();
+      const namespaceStats = stats.namespaces?.[namespace];
+      console.log(`\ud83d\udcca Namespace stats:`, namespaceStats);
+
+      if (!namespaceStats || namespaceStats.vectorCount === 0) {
+        console.log(`❌ No vectors found in namespace: ${namespace}`);
+        return;
+      }
+
+      // Use broad queries to retrieve chunks
+      const broadQueries = ['document', 'text', 'policy', 'employment', 'training'];
+      const allChunks = new Set<string>();
+
+      for (const query of broadQueries) {
+        try {
+          const vectorStore = await PineconeStore.fromExistingIndex(this.embeddings, {
+            pineconeIndex,
+            namespace: namespace,
+          });
+
+          const results = await (vectorStore as any).similaritySearchWithScore(query, Math.min(limit, 100));
+
+          results.forEach(([doc, score]: [any, number]) => {
+            const content = doc.pageContent || '';
+            const chunkInfo = `Score: ${score.toFixed(3)} | Content: ${content.substring(0, 200)}...`;
+            allChunks.add(chunkInfo);
+          });
+
+          console.log(`\ud83d\udd0d Query "${query}" returned ${results.length} results`);
+        } catch (queryError) {
+          console.warn(`\u26a0\ufe0f Query "${query}" failed:`, queryError);
+        }
+
+        if (allChunks.size >= limit) break;
+      }
+
+      console.log(`\n\ud83d\udccb Found ${allChunks.size} unique chunks in namespace:\n`);
+      Array.from(allChunks).slice(0, limit).forEach((chunk, index) => {
+        console.log(`${index + 1}. ${chunk}\n`);
+      });
+
+    } catch (error) {
+      console.error('\u274c Error viewing namespace chunks:', error);
     }
   }
 
