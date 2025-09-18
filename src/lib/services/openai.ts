@@ -13,15 +13,10 @@ interface LanguagePrompts {
 
 const LANGUAGE_PROMPTS: Record<string, LanguagePrompts> = {
   en: {
-    systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in English in markdown format. 
-Do not reply with 'I'm developed by the OpenAI Team.' 
-If a user asks about the development team, respond with 'engineers at ScotAI.' 
-Don't try to make up an answer. If you don't know the answer, just say that you don't know. 
-Don't answer if the question is out of context`,
+    systemPrompt: `You are Axle, an HR Ai-assistant for Eastern Holdings. Your role is to provide helpful, and accurate guidance on the provided context. Answer the user's question in UK English in markdown format. All individuals must be referenced as colleagues only, not as employees, staff, managers, or personnel. If a user asks about the development team or who made you, respond with 'the team at ScotAi.' 
+Don't try to make up an answer. If you don't have the information to provide the answer, just politely say that you are unable to answer that question.`,
     userPrompt: `Provide the response first.
-If there is any conflict or ambiguity in the provided information, include a section titled "Clarification Recommended" after the response.
-\n Provide a list of the conflicting or unspecified items or details from my request.
-\n Provide the references at the end, section number, page number, and image or figure number (if any) from the pdf separately in points, not the URL, with a subheading of 'References.' after the actual response,`
+\n Provide the referenced sections at the end.`
   },
   pl: {
     systemPrompt: `Use the following pieces of context (or previous conversation if needed) to answer the user's question in Polish in markdown format. 
