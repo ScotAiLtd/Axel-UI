@@ -15,6 +15,69 @@ export class PineconeService {
   private indexName: string;
   private embeddings: OpenAIEmbeddings;
 
+  /**
+   * Clean OCR text using pattern-based rules (no manual word corrections)
+   */
+  private cleanOCRText(text: string): string {
+    if (!text || text.trim().length === 0) return text;
+
+    return text
+      // Fix concatenated words: "documentManagement" → "document Management"
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+
+      // Fix spaced punctuation: "word ." → "word."
+      .replace(/\s+([.!?,:;])/g, '$1')
+
+      // Fix broken words: "s ystem" → "system", "emp loyment" → "employment"
+      .replace(/\b([a-z])\s+([a-z]{1,3})\b/g, '$1$2')
+
+      // Fix broken short words: "i s" → "is", "a nd" → "and"
+      .replace(/\b([a-z])\s+([a-z]{1,2})\b/g, '$1$2')
+
+      // Remove excessive special characters (keep basic punctuation)
+      .replace(/[^\w\s.,!?&()-]/g, ' ')
+
+      // Fix multiple spaces
+      .replace(/\s+/g, ' ')
+
+      // Fix spacing around common punctuation
+      .replace(/\s*&\s*/g, ' & ')
+      .replace(/\s*-\s*/g, ' - ')
+
+      // Remove standalone single characters that are likely OCR noise
+      .replace(/\b[a-zA-Z]\b(?!\s[a-zA-Z]\b)/g, '')
+
+      // Clean up any remaining multiple spaces
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  /**
+   * Check if a text chunk has acceptable quality for embedding
+   */
+  private isValidChunk(text: string): boolean {
+    if (!text || text.trim().length < 10) return false;
+
+    const words = text.trim().split(/\s+/);
+    const totalWords = words.length;
+
+    if (totalWords < 3) return false;
+
+    // Count words that look like OCR garbage (very short or contain numbers/special chars)
+    const garbageWords = words.filter(word => {
+      return word.length === 1 ||
+             /^\d+$/.test(word) ||
+             /[^\w\s]/.test(word) ||
+             word.length > 20; // Extremely long words are likely OCR errors
+    }).length;
+
+    // Calculate garbage ratio
+    const garbageRatio = garbageWords / totalWords;
+
+    // Reject chunks with too much garbage
+    return garbageRatio < 0.4;
+  }
+
   constructor() {
     this.pinecone = new Pinecone({
       apiKey: env.PINECONE_API_KEY,
@@ -52,23 +115,29 @@ export class PineconeService {
       console.log(`✅ Pinecone search completed. Found ${results.length} matches`);
       console.log('Raw results:', results);
 
-      // Transform results to DocumentSource format with actual scores
+      // Transform results to DocumentSource format with actual scores and OCR cleanup
       const sources: DocumentSource[] = results
         .filter(([doc, score]: [any, number]) => {
-          // Filter out low-quality matches (adjust threshold as needed)
-          const hasContent = doc.pageContent && doc.pageContent.trim().length > 20;
+          const rawContent = doc.content || doc.metadata?.content || '';
+          const hasContent = rawContent && rawContent.trim().length > 20;
           const goodScore = score >= 0.7; // Adjust this threshold based on testing
-          return hasContent && goodScore;
+          const validChunk = this.isValidChunk(rawContent);
+
+          return hasContent && goodScore && validChunk;
         })
         .map(([result, score]: [any, number], index: number) => {
-          const content = result.pageContent || result.metadata?.pageContent || '';
+          const rawContent = result.content || result.metadata?.content || '';
+
+          // Apply OCR cleanup
+          const cleanedContent = this.cleanOCRText(rawContent);
 
           console.log(`📊 Result ${index + 1}: Score ${score.toFixed(3)}`);
-          console.log(`   Content Preview: ${content.substring(0, 150)}${content.length > 150 ? '...' : ''}`);
+          console.log(`   Raw Preview: ${rawContent.substring(0, 100)}${rawContent.length > 100 ? '...' : ''}`);
+          console.log(`   Clean Preview: ${cleanedContent.substring(0, 100)}${cleanedContent.length > 100 ? '...' : ''}`);
           console.log(`   Metadata:`, result.metadata);
 
           return {
-            content,
+            content: cleanedContent,
             metadata: result.metadata || {},
             score: score,
           };
@@ -115,7 +184,7 @@ export class PineconeService {
           const queryResults = await (vectorStore as any).similaritySearch(commonQueries[i], 200);
           
           queryResults.forEach((result: any, idx: number) => {
-            const content = result.pageContent || result.metadata?.pageContent || '';
+            const content = result.content || result.metadata?.content || '';
             const docId = `${result.metadata?.id || `${namespace}-${i}-${idx}`}`;
             
             if (content && content.trim().length > 0 && !allDocuments.has(docId)) {
