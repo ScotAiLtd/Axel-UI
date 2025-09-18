@@ -699,9 +699,9 @@ export default function ChatInterface() {
           >
             <Trash size={18} />
           </button>
-          <button 
+         <button
             onClick={toggleFullscreen}
-            className="bg-transparent border-none text-muted-foreground hover:bg-secondary hover:text-primary p-2 rounded transition-all"
+            className="bg-transparent border-none text-muted-foreground hover:bg-secondary hover:text-primary p-2 rounded transition-all md:hidden"
             title="Toggle fullscreen"
           >
             <Expand size={18} />
