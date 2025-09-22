@@ -178,7 +178,7 @@ export function UserManagementSection() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.messageCount/2}
+                      {Math.floor(user.messageCount/2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
