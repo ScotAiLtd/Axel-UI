@@ -12,9 +12,9 @@ export default function DocumentViewer() {
   }
 
   const refreshDocument = () => {
-    const iframe = document.getElementById("document-viewer") as HTMLIFrameElement
-    if (iframe && iframe.src) {
-      iframe.src = iframe.src
+    const object = document.getElementById("document-viewer") as HTMLObjectElement
+    if (object && object.data) {
+      object.data = object.data
     }
   }
 
@@ -40,15 +40,14 @@ export default function DocumentViewer() {
         </div>
       </div>
       <div className="document-content flex-1 overflow-hidden bg-white">
-        <iframe 
-          id="document-viewer" 
-          src="https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF"
+        <object
+          id="document-viewer"
+          data="https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF"
           className="w-full h-full border-none"
-          allowFullScreen
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-          referrerPolicy="origin"
-          loading="eager"
-        />
+          type="text/html"
+        >
+          <p>Please login to view the document.</p>
+        </object>
       </div>
     </div>
   )
