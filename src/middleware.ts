@@ -60,4 +60,4 @@ export const config = {
     '/((?!api/auth|_next|favicon.ico|Ask_Axle_256x256.png).*)'
   ]
 } 
-//export2
+//export3
