@@ -13,16 +13,17 @@ interface LanguagePrompts {
 
 const LANGUAGE_PROMPTS: Record<string, LanguagePrompts> = {
   en: {
-    systemPrompt: `You are Axle, an HR chat assistant for Eastern Holdings. Your role is to provide helpful and accurate guidance based on the Eastern Holdings People Management Toolkit. Answer the user's question in UK English in markdown format. 
+    systemPrompt: `You are Axle, an HR chat assistant for Eastern Holdings. Your role is to provide helpful and accurate guidance based on the Eastern Holdings People Management Toolkit. Answer the user's question in UK English in markdown format.
 
 All individuals must be referenced as colleagues only, not as employees, staff, managers, or personnel. The users of this tool are people managers who need information to support their teams and direct reports.
 
 If a user asks about the development team or who made you, respond with 'the team at ScotAi.'
 
 If someone asks for contact information, HR consultant details, or similar queries about who to contact, please direct them to one or more of the following addresses ONLY, depending on which are most relevant: HR = hrsupport@easternholdings.co.uk, Payroll = payroll@easternholdings.co.uk, Recruitment = recruitmentsupport@easternholdings.co.uk
- 
 
-Don't try to make up an answer. If you don't have the information in the People Management Toolkit to provide the answer, just politely say that you are unable to answer that question. Do not use the word "context" in your responses. 
+IMPORTANT: Always format email addresses as clickable markdown links. For example, use [hrsupport@easternholdings.co.uk](mailto:hrsupport@easternholdings.co.uk) instead of plain text emails.
+
+Don't try to make up an answer. If you don't have the information in the People Management Toolkit to provide the answer, just politely say that you are unable to answer that question. Do not use the word "context" in your responses.
 
 For basic user queries that don't require toolkit information (e.g., "What do you do?" or "What information can you provide?"), respond that your role is as a chat assistant to help with queries regarding the People Management Toolkit. You are not empowered to perform functions like providing forms, navigating to pages, or answering questions unrelated to the People Management Toolkit.`,
     userPrompt: `Provide the response first.
@@ -35,7 +36,9 @@ All individuals must be referenced as colleagues only, not as employees, staff, 
 
 If a user asks about the development team or who made you, respond with 'the team at ScotAi.'
 
-If someone asks for contact information, HR consultant details, or similar queries about who to contact, please direct them to: hr@easternholdings.co.uk 
+If someone asks for contact information, HR consultant details, or similar queries about who to contact, please direct them to: hr@easternholdings.co.uk
+
+IMPORTANT: Always format email addresses as clickable markdown links. For example, use [hr@easternholdings.co.uk](mailto:hr@easternholdings.co.uk) instead of plain text emails.
 
 Don't try to make up an answer. If you don't have the information in the People Management Toolkit to provide the answer, just politely say that you are unable to answer that question.
 DO NOT USE THE WORD CONTEXT IN THE RESPONSE AND USER QUERY SOMETIMES CAN BE BASIC WHICH DOESNT NEED CONTEXT EG: What do you do?, What information can you provide?`,
@@ -59,23 +62,36 @@ export class OpenAIService {
   async generateResponse(
     userMessage: string,
     context: DocumentSource[],
-    language: string = 'en'
+    language: string = 'en',
+    previousMessages: Array<{role: 'user' | 'assistant', content: string}> = []
   ): Promise<string> {
     try {
       const languagePrompts = LANGUAGE_PROMPTS[language] || LANGUAGE_PROMPTS.en;
       const contextText = context
         .map((source) => source.content)
         .join('\n\n');
-      
-      const fullUserPrompt = `${languagePrompts.userPrompt}
 
+      let previousConversationText = '';
+      if (previousMessages.length > 0) {
+        previousConversationText = '\n----------------\n\nPREVIOUS CONVERSATION:\n';
+        previousMessages.forEach(msg => {
+          if (msg.role === 'user') {
+            previousConversationText += `User: ${msg.content}\n`;
+          } else {
+            previousConversationText += `Assistant: ${msg.content}\n`;
+          }
+        });
+      }
+
+      const fullUserPrompt = `${languagePrompts.userPrompt}
+${previousConversationText}
 \n----------------\n
 
 CONTEXT:
 ${contextText}
 
 USER INPUT: ${userMessage}`;
-      
+
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -126,16 +142,29 @@ USER INPUT: ${userMessage}`;
   async buildStreamingMessages(
     userMessage: string,
     context: DocumentSource[],
-    language: string = 'en'
+    language: string = 'en',
+    previousMessages: Array<{role: 'user' | 'assistant', content: string}> = []
   ): Promise<{ messages: Array<{role: 'system' | 'user' | 'assistant', content: string}>, model: string }> {
     try {
       const languagePrompts = LANGUAGE_PROMPTS[language] || LANGUAGE_PROMPTS.en;
       const contextText = context
         .map((source) => source.content)
         .join('\n\n');
-      
-      const fullUserPrompt = `${languagePrompts.userPrompt}
 
+      let previousConversationText = '';
+      if (previousMessages.length > 0) {
+        previousConversationText = '\n----------------\n\nPREVIOUS CONVERSATION:\n';
+        previousMessages.forEach(msg => {
+          if (msg.role === 'user') {
+            previousConversationText += `User: ${msg.content}\n`;
+          } else {
+            previousConversationText += `Assistant: ${msg.content}\n`;
+          }
+        });
+      }
+
+      const fullUserPrompt = `${languagePrompts.userPrompt}
+${previousConversationText}
 \n----------------\n
 
 CONTEXT:
@@ -149,7 +178,7 @@ USER INPUT: ${userMessage}`;
           content: languagePrompts.systemPrompt,
         },
         {
-          role: 'user' as const, 
+          role: 'user' as const,
           content: fullUserPrompt,
         },
       ];

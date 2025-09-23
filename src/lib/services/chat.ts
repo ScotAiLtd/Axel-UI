@@ -24,7 +24,8 @@ export class ChatService {
   async processMessage(
     message: string,
     language: string = 'en',
-    namespace?: string
+    namespace?: string,
+    previousMessages: Array<{role: 'user' | 'assistant', content: string}> = []
   ): Promise<{ response: string; sources: DocumentSource[] }> {
     try {
       // Search for relevant documents
@@ -34,7 +35,7 @@ export class ChatService {
       );
 
       // Generate response using OpenAI with context and language
-      const response = await this.openaiService.generateResponse(message, sources, language);
+      const response = await this.openaiService.generateResponse(message, sources, language, previousMessages);
 
       return { response, sources };
     } catch (error) {
@@ -49,7 +50,8 @@ export class ChatService {
   async buildMessagesForStreaming(
     message: string,
     language: string = 'en',
-    namespace?: string
+    namespace?: string,
+    previousMessages: Array<{role: 'user' | 'assistant', content: string}> = []
   ): Promise<{ messages: Array<{role: 'system' | 'user' | 'assistant', content: string}>, model: string }> {
     try {
       // Search for relevant documents
@@ -59,7 +61,7 @@ export class ChatService {
       );
 
       // Build messages with context and language
-      const { messages, model } = await this.openaiService.buildStreamingMessages(message, sources, language);
+      const { messages, model } = await this.openaiService.buildStreamingMessages(message, sources, language, previousMessages);
 
       return { messages, model };
     } catch (error) {

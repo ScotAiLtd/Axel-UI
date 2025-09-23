@@ -10,6 +10,7 @@ import { ChatRequest, ApiErrorResponse } from '@/types/chat';
 import { validateEnv } from '@/config/env';
 import { streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
+import { prisma } from '@/lib/db';
 
 // Initialize chat service
 let chatService: ChatService;
@@ -38,15 +39,15 @@ export async function POST(request: NextRequest) {
   try {
     // Initialize services with environment validation
     const service = initializeServices();
-    
+
     // Parse and validate request body
     const body: ChatRequest = await request.json();
-    
+
     if (!body.message || typeof body.message !== 'string' || body.message.trim().length === 0) {
       return Response.json(
-        { 
+        {
           error: 'Message is required and must be a non-empty string',
-          code: 'INVALID_INPUT' 
+          code: 'INVALID_INPUT'
         },
         { status: 400 }
       );
@@ -55,22 +56,53 @@ export async function POST(request: NextRequest) {
     // Sanitize input
     const sanitizedMessage = body.message.trim();
     const language = body.language || 'en';
-    
+
     if (sanitizedMessage.length > 4000) {
       return Response.json(
-        { 
+        {
           error: 'Message is too long. Maximum length is 4000 characters.',
-          code: 'MESSAGE_TOO_LONG' 
+          code: 'MESSAGE_TOO_LONG'
         },
         { status: 400 }
       );
+    }
+
+    // Get last conversation pair (previous user message + AI response)
+    const authCookie = request.cookies.get('axle-auth');
+    const userCookie = request.cookies.get('axle-user');
+    let previousMessages: Array<{role: 'user' | 'assistant', content: string}> = [];
+
+    if (authCookie?.value === 'authenticated' && userCookie?.value) {
+      try {
+        const user = await prisma.user.findUnique({
+          where: { email: userCookie.value }
+        });
+
+        if (user) {
+          const lastMessages = await prisma.chatMessage.findMany({
+            where: { userId: user.id },
+            orderBy: { createdAt: 'desc' },
+            take: 2
+          });
+
+          if (lastMessages.length === 2) {
+            previousMessages = [
+              { role: lastMessages[1].role as 'user' | 'assistant', content: lastMessages[1].content },
+              { role: lastMessages[0].role as 'user' | 'assistant', content: lastMessages[0].content }
+            ];
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching previous messages:', error);
+      }
     }
 
     // Get context and build messages
     const { messages, model } = await service.buildMessagesForStreaming(
       sanitizedMessage,
       language,
-      body.namespace
+      body.namespace,
+      previousMessages
     );
 
     // Create streaming response using AI SDK
