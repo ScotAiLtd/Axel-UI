@@ -120,7 +120,7 @@ export class PineconeService {
         .filter(([doc, score]: [any, number]) => {
           const rawContent = doc.content || doc.metadata?.content || '';
           const hasContent = rawContent && rawContent.trim().length > 20;
-          const goodScore = score >= 0.7; // Adjust this threshold based on testing
+          const goodScore = score >= 0.5; 
           const validChunk = this.isValidChunk(rawContent);
 
           return hasContent && goodScore && validChunk;
