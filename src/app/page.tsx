@@ -76,10 +76,10 @@ export default function HomePage() {
                     className="text-center space-y-2"
                   >
                     <h2 className="text-xl font-semibold tracking-tight text-gray-800">
-                      Welcome to EWMG HR Portal
+                      Welcome to EWMG Portal
                     </h2>
                     <p className={`${MUTED_TEXT} text-sm`}>
-                      Sign in with your company credentials to access HR resources
+                      Sign in with your company credentials to access the platform
                     </p>
                   </motion.div>
 
