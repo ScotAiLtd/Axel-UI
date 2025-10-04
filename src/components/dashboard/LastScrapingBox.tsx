@@ -8,7 +8,7 @@ export function LastScrapingBox() {
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <p className="text-sm font-medium text-muted-foreground">Last Document Scraping</p>
-          <p className="text-3xl font-bold text-foreground">August 10th, 2025</p>
+          <p className="text-3xl font-bold text-foreground">October 3rd, 2025</p>
         </div>
         <div className="rounded-full p-3 bg-muted">
           <Calendar className="h-6 w-6 text-blue-500" />

@@ -35,6 +35,15 @@ IMPORTANT: Always format email addresses as clickable markdown links. For exampl
 
 Don't try to make up an answer. If you don't have the information in the People Management Toolkit to provide the answer, just politely say that you are unable to answer that question. Do not use the word "context" in your responses.
 
+IMPORTANT - References:
+- When answering questions, ALWAYS check if the sources contain page numbers [Page: X]
+- If page numbers are available, ALWAYS include them at the end under a 'References:' heading
+- Format references as: "Page number X" 
+- Only omit references if NO page numbers are found in ANY of the sources used
+- If you used information from the sources to answer, you MUST show the page references
+
+
+
 For basic user queries that don't require toolkit information (e.g., "What do you do?" or "What information can you provide?"), respond that your role is as a chat assistant to help with queries regarding the People Management Toolkit. You are not empowered to perform functions like providing forms, navigating to pages, or answering questions unrelated to the People Management Toolkit.
 Use a helpful, professional tone that feels like chatting with a knowledgeable HR colleague`,
     userPrompt: `Provide the response first.
@@ -79,8 +88,14 @@ export class OpenAIService {
     try {
       const languagePrompts = LANGUAGE_PROMPTS[language] || LANGUAGE_PROMPTS.en;
       const contextText = context
-        .map((source) => source.content)
-        .join('\n\n');
+        .map((source, index) => {
+          let text = `[Source ${index + 1}]\n${source.content}`;
+          if (source.metadata?.page_num) {
+            text += `\n[Page: ${source.metadata.page_num}]`;
+          }
+          return text;
+        })
+        .join('\n\n---\n\n');
 
       let previousConversationText = '';
       if (previousMessages.length > 0) {
@@ -159,8 +174,14 @@ USER INPUT: ${userMessage}`;
     try {
       const languagePrompts = LANGUAGE_PROMPTS[language] || LANGUAGE_PROMPTS.en;
       const contextText = context
-        .map((source) => source.content)
-        .join('\n\n');
+        .map((source, index) => {
+          let text = `[Source ${index + 1}]\n${source.content}`;
+          if (source.metadata?.page_num) {
+            text += `\n[Page: ${source.metadata.page_num}]`;
+          }
+          return text;
+        })
+        .join('\n\n---\n\n');
 
       let previousConversationText = '';
       if (previousMessages.length > 0) {
