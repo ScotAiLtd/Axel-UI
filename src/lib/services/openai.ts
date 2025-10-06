@@ -5,6 +5,8 @@
 
 import env from '@/config/env';
 import { DocumentSource } from '@/types/chat';
+import fs from 'fs';
+import path from 'path';
 
 interface LanguagePrompts {
   systemPrompt: string;
@@ -118,10 +120,48 @@ DO NOT USE THE WORD CONTEXT IN THE RESPONSE AND USER QUERY SOMETIMES CAN BE BASI
 export class OpenAIService {
   private apiKey: string;
   private model: string;
+  private verifiedUrlsText: string = '';
 
   constructor() {
     this.apiKey = env.OPENAI_API_KEY;
     this.model = env.OPENAI_MODEL;
+    this.loadVerifiedUrls();
+  }
+
+  private loadVerifiedUrls(): void {
+    try {
+      const urlFilePath = path.join(process.cwd(), 'src', 'urls.txt');
+      const fileContent = fs.readFileSync(urlFilePath, 'utf-8');
+      const urls = fileContent
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.startsWith('http'));
+
+      this.verifiedUrlsText = urls.join('\n');
+      console.log(`Loaded ${urls.length} verified URLs for AI verification`);
+    } catch (error) {
+      console.warn('Could not load verified URLs file:', error);
+      this.verifiedUrlsText = '';
+    }
+  }
+
+  private getSystemPromptWithUrls(basePrompt: string): string {
+    if (!this.verifiedUrlsText) {
+      return basePrompt;
+    }
+
+    return `${basePrompt}
+
+CRITICAL - URL VERIFICATION:
+Below is the COMPLETE list of all valid URLs in our system. Before including ANY URL in your response, you MUST:
+1. Check if the URL you found in the source content exists in this verified list
+2. If you find a similar but slightly different URL (missing dash, different character, etc.), use the EXACT URL from this list instead
+3. NEVER output a URL that is not in this verified list - if you can't find an exact or very close match, do NOT include the URL
+
+VERIFIED URLS LIST:
+${this.verifiedUrlsText}
+
+When you extract a URL from the source content, compare it character-by-character with the verified list above and use the correct version.`;
   }
 
   /**
@@ -177,7 +217,7 @@ USER INPUT: ${userMessage}`;
           messages: [
             {
               role: 'system',
-              content: languagePrompts.systemPrompt,
+              content: this.getSystemPromptWithUrls(languagePrompts.systemPrompt),
             },
             {
               role: 'user',
@@ -255,7 +295,7 @@ USER INPUT: ${userMessage}`;
       const messages = [
         {
           role: 'system' as const,
-          content: languagePrompts.systemPrompt,
+          content: this.getSystemPromptWithUrls(languagePrompts.systemPrompt),
         },
         {
           role: 'user' as const,
