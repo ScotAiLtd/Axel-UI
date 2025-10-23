@@ -58,16 +58,17 @@ export async function GET(request: NextRequest) {
     // Get all users with their chat message counts using AdminChatHistory (persistent admin copy)
     // This ensures the button shows even when users delete their chat history
     const usersWithMessageCount = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         u.id,
         u.email,
         u.role,
+        u."azureAdGroup",
         COALESCE(COUNT(ach.id), 0)::int as "messageCount"
       FROM "User" u
       LEFT JOIN "AdminChatHistory" ach ON u.id = ach."userId"
-      GROUP BY u.id, u.email, u.role
+      GROUP BY u.id, u.email, u.role, u."azureAdGroup"
       ORDER BY COUNT(ach.id) DESC, u.email ASC
-    ` as Array<{id: string; email: string; role: string; messageCount: number}>;
+    ` as Array<{id: string; email: string; role: string; azureAdGroup: string | null; messageCount: number}>;
 
     return NextResponse.json({ 
       success: true,

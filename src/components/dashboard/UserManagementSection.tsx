@@ -1,13 +1,16 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { Users, User, ShieldCheck, MessageSquare, Loader2 } from 'lucide-react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { Users, User, ShieldCheck, MessageSquare, Loader2, Search, ArrowUpDown } from 'lucide-react'
 import { UserRole, roleDisplayNames } from '@/types/user'
+
+type SortDirection = 'asc' | 'desc' | null
 
 interface UserItem {
   id: string
   email: string | null
   role: string
+  azureAdGroup: string | null
   messageCount: number
 }
 
@@ -31,9 +34,23 @@ export function UserManagementSection() {
   const [expandedUserIds, setExpandedUserIds] = useState<Set<string>>(new Set())
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null)
 
+
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [groupSort, setGroupSort] = useState<SortDirection>(null)
+  const [roleSort, setRoleSort] = useState<SortDirection>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     loadUsers()
   }, [])
+
+ 
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }, [isSearchOpen])
 
   const loadUsers = async () => {
     try {
@@ -118,6 +135,98 @@ export function UserManagementSection() {
     return <User size={16} className="text-blue-600" />
   }
 
+  const getGroupDisplayName = (azureAdGroup: string | null): string => {
+    if (!azureAdGroup) return '-'
+    if (azureAdGroup === 'ScotAIManagers') return 'Manager'
+    if (azureAdGroup === 'ScotAIUsers') return 'User'
+    return '-'
+  }
+
+  // Toggle group sort (Manager -> User -> None)
+  const toggleGroupSort = () => {
+    if (groupSort === null) {
+      setGroupSort('asc') // Managers first
+    } else if (groupSort === 'asc') {
+      setGroupSort('desc') // Users first
+    } else {
+      setGroupSort(null) // No sort
+    }
+    setRoleSort(null) // Clear other sort
+  }
+
+  // Toggle role sort (Admin -> User -> None)
+  const toggleRoleSort = () => {
+    if (roleSort === null) {
+      setRoleSort('asc') // Admins first
+    } else if (roleSort === 'asc') {
+      setRoleSort('desc') // Users first
+    } else {
+      setRoleSort(null) // No sort
+    }
+    setGroupSort(null) // Clear other sort
+  }
+
+  // Filtered and sorted users
+  const filteredAndSortedUsers = useMemo(() => {
+    let filtered = [...users]
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(user => {
+        const email = user.email?.toLowerCase() || ''
+        return email.includes(query)
+      })
+    }
+
+    // Apply group sort
+    if (groupSort) {
+      filtered.sort((a, b) => {
+        const aGroup = a.azureAdGroup || ''
+        const bGroup = b.azureAdGroup || ''
+
+        // ScotAIManagers = Manager
+        // ScotAIUsers = User
+        const aIsManager = aGroup === 'ScotAIManagers'
+        const bIsManager = bGroup === 'ScotAIManagers'
+
+        if (groupSort === 'asc') {
+          // Managers first
+          if (aIsManager && !bIsManager) return -1
+          if (!aIsManager && bIsManager) return 1
+          return 0
+        } else {
+          // Users first
+          if (!aIsManager && bIsManager) return -1
+          if (aIsManager && !bIsManager) return 1
+          return 0
+        }
+      })
+    }
+
+    // Apply role sort
+    if (roleSort) {
+      filtered.sort((a, b) => {
+        const aIsAdmin = a.role === 'ADMIN'
+        const bIsAdmin = b.role === 'ADMIN'
+
+        if (roleSort === 'asc') {
+          // Admins first
+          if (aIsAdmin && !bIsAdmin) return -1
+          if (!aIsAdmin && bIsAdmin) return 1
+          return 0
+        } else {
+          // Users first
+          if (!aIsAdmin && bIsAdmin) return -1
+          if (aIsAdmin && !bIsAdmin) return 1
+          return 0
+        }
+      })
+    }
+
+    return filtered
+  }, [users, searchQuery, groupSort, roleSort])
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -136,25 +245,67 @@ export function UserManagementSection() {
     <div className="bg-white rounded-lg shadow p-6 h-[600px] flex flex-col">
       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <Users size={20} />
-        User Management ({users.length})
+        User Management ({filteredAndSortedUsers.length}{searchQuery && ` of ${users.length}`})
       </h3>
-      
-      {users.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <Users size={48} className="mx-auto mb-4 text-gray-300" />
-          <p>No users found.</p>
-        </div>
-      ) : (
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto overflow-x-auto">
-            <table className="min-w-full bg-white">
+
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto overflow-x-auto">
+          <table className="min-w-full bg-white">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
+                  <div className="flex items-center gap-2">
+                    <span>Email</span>
+                    <button
+                      onClick={() => setIsSearchOpen(!isSearchOpen)}
+                      className="p-1 hover:bg-gray-200 rounded transition-colors"
+                      title="Search emails"
+                    >
+                      <Search size={14} className={isSearchOpen ? 'text-blue-600' : 'text-gray-400'} />
+                    </button>
+                  </div>
+                  {isSearchOpen && (
+                    <div className="mt-2">
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search by email..."
+                        className="w-full text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 normal-case font-normal"
+                      />
+                    </div>
+                  )}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
+                  <button
+                    onClick={toggleGroupSort}
+                    className="flex items-center gap-1 hover:text-gray-700 transition-colors"
+                    title="Sort by group"
+                  >
+                    <span>Group</span>
+                    <ArrowUpDown size={14} className={groupSort ? 'text-blue-600' : 'text-gray-400'} />
+                  </button>
+                  {groupSort && (
+                    <div className="text-[10px] text-blue-600 font-normal normal-case mt-1">
+                      {groupSort === 'asc' ? 'Managers first' : 'Users first'}
+                    </div>
+                  )}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button
+                    onClick={toggleRoleSort}
+                    className="flex items-center gap-1 hover:text-gray-700 transition-colors"
+                    title="Sort by role"
+                  >
+                    <span>Role</span>
+                    <ArrowUpDown size={14} className={roleSort ? 'text-blue-600' : 'text-gray-400'} />
+                  </button>
+                  {roleSort && (
+                    <div className="text-[10px] text-blue-600 font-normal normal-case mt-1">
+                      {roleSort === 'asc' ? 'Admins first' : 'Users first'}
+                    </div>
+                  )}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Chat Messages
@@ -165,11 +316,32 @@ export function UserManagementSection() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {users.map((user) => (
-                <React.Fragment key={user.id}>
+              {filteredAndSortedUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <Users size={48} className="mx-auto mb-4 text-gray-300" />
+                    <p className="text-gray-500 text-sm">
+                      {searchQuery ? `No users found matching "${searchQuery}"` : 'No users found.'}
+                    </p>
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="mt-3 text-xs text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Clear search
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ) : (
+                filteredAndSortedUsers.map((user) => (
+                  <React.Fragment key={user.id}>
                   <tr className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {user.email ? (user.email.startsWith('>') ? user.email.slice(1) : user.email) : 'No Email'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {getGroupDisplayName(user.azureAdGroup)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex items-center gap-1">
@@ -213,7 +385,7 @@ export function UserManagementSection() {
                   </tr>
                   {expandedUserIds.has(user.id) && (
                     <tr>
-                      <td colSpan={4} className="px-6 py-4">
+                      <td colSpan={5} className="px-6 py-4">
                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                           <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-1">
                             <MessageSquare size={16} />
@@ -259,12 +431,12 @@ export function UserManagementSection() {
                     </tr>
                   )}
                 </React.Fragment>
-              ))}
+              ))
+              )}
             </tbody>
             </table>
           </div>
         </div>
-      )}
     </div>
   )
 }

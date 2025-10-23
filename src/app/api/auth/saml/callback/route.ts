@@ -21,22 +21,55 @@ export async function POST(request: NextRequest) {
     }
 
     // 🆕 EXTRACT USER DATA FROM RAW SAML BEFORE SIGNATURE VERIFICATION
-    let extractedUserData: { email?: string; name?: string } = {};
+    let extractedUserData: { email?: string; name?: string; azureAdGroup?: string } = {};
     try {
       // Decode the base64 SAML response to extract user data
       const decodedSAML = Buffer.from(SAMLResponse, 'base64').toString('utf-8');
       console.log('🔍 Extracting user data from raw SAML response...');
-      
+
       // Extract email from SAML assertion (common attribute names)
       const emailMatch = decodedSAML.match(/(?:emailaddress|email|Email|EmailAddress)["'>]([^<'"]+)/i);
       const nameMatch = decodedSAML.match(/(?:name|displayname|Name|DisplayName)["'>]([^<'"]+)/i);
       const givenNameMatch = decodedSAML.match(/(?:givenname|firstname|GivenName|FirstName)["'>]([^<'"]+)/i);
       const surnameMatch = decodedSAML.match(/(?:surname|lastname|Surname|LastName)["'>]([^<'"]+)/i);
-      
+
+      // 🆕 EXTRACT AZURE AD GROUPS FROM SAML
+      const groupsPattern = /<Attribute Name="http:\/\/schemas\.microsoft\.com\/ws\/2008\/06\/identity\/claims\/groups">[\s\S]*?<\/Attribute>/;
+      const groupsSection = decodedSAML.match(groupsPattern);
+
+      if (groupsSection) {
+        const groupIds: string[] = [];
+        const attributeValuePattern = /<AttributeValue>([a-f0-9\-]+)<\/AttributeValue>/g;
+        let match;
+
+        while ((match = attributeValuePattern.exec(groupsSection[0])) !== null) {
+          groupIds.push(match[1]);
+        }
+
+        console.log('🎯 Found Azure AD groups:', groupIds);
+
+        // Azure AD Group Object IDs (from Darren)
+        const SCOTAI_MANAGERS_ID = '9a313a46-13e2-46d4-8a9d-51a2d90ed655';
+        const SCOTAI_USERS_ID = 'ede0a70a-7deb-478c-ae39-7a6db4393df5';
+
+        // Determine which group the user belongs to
+        if (groupIds.includes(SCOTAI_MANAGERS_ID)) {
+          extractedUserData.azureAdGroup = 'ScotAIManagers';
+          console.log('✅ User is in ScotAIManagers group');
+        } else if (groupIds.includes(SCOTAI_USERS_ID)) {
+          extractedUserData.azureAdGroup = 'ScotAIUsers';
+          console.log('✅ User is in ScotAIUsers group');
+        } else {
+          console.log('⚠️ User not in ScotAIManagers or ScotAIUsers groups');
+        }
+      } else {
+        console.log('⚠️ No groups found in SAML response');
+      }
+
       if (emailMatch) {
         extractedUserData.email = emailMatch[1];
       }
-      
+
       if (nameMatch) {
         extractedUserData.name = nameMatch[1];
       } else if (givenNameMatch && surnameMatch) {
@@ -44,7 +77,7 @@ export async function POST(request: NextRequest) {
       } else if (givenNameMatch) {
         extractedUserData.name = givenNameMatch[1];
       }
-      
+
       console.log('✅ Extracted user data from raw SAML:', extractedUserData);
     } catch (extractError) {
       console.log('⚠️ Could not extract user data from raw SAML (will try Jackson result):', extractError instanceof Error ? extractError.message : extractError);
@@ -79,14 +112,16 @@ export async function POST(request: NextRequest) {
           // Save/update user in database for chat history and future features
           const savedUser = await prisma.user.upsert({
             where: { email: userEmail },
-            update: { 
-              name: userName
+            update: {
+              name: userName,
+              azureAdGroup: extractedUserData.azureAdGroup  // Update Azure AD group (does NOT touch role field)
               // updatedAt is automatically handled by Prisma
             },
-            create: { 
-              email: userEmail, 
+            create: {
+              email: userEmail,
               name: userName,
-              emailVerified: new Date() // Since they logged in via company Azure AD
+              emailVerified: new Date(), // Since they logged in via company Azure AD
+              azureAdGroup: extractedUserData.azureAdGroup  // Set Azure AD group
             }
           });
           
@@ -183,13 +218,15 @@ export async function POST(request: NextRequest) {
           if (extractedUserData.email) {
             const savedUser = await prisma.user.upsert({
               where: { email: extractedUserData.email },
-              update: { 
-                name: extractedUserData.name
-              },
-              create: { 
-                email: extractedUserData.email, 
+              update: {
                 name: extractedUserData.name,
-                emailVerified: new Date() // Azure AD verified
+                azureAdGroup: extractedUserData.azureAdGroup  // Update Azure AD group (does NOT touch role field)
+              },
+              create: {
+                email: extractedUserData.email,
+                name: extractedUserData.name,
+                emailVerified: new Date(), // Azure AD verified
+                azureAdGroup: extractedUserData.azureAdGroup  // Set Azure AD group
               }
             });
             

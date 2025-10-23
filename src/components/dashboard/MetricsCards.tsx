@@ -7,9 +7,10 @@ interface MetricCardProps {
   value: string
   icon: React.ReactNode
   loading?: boolean
+  subtitle?: string
 }
 
-function MetricCard({ title, value, icon, loading = false }: MetricCardProps) {
+function MetricCard({ title, value, icon, loading = false, subtitle }: MetricCardProps) {
   return (
     <Card className="p-6 hover:shadow-lg transition-shadow">
       <div className="flex items-center justify-between">
@@ -18,6 +19,11 @@ function MetricCard({ title, value, icon, loading = false }: MetricCardProps) {
           <p className="text-3xl font-bold text-foreground">
             {loading ? '...' : value}
           </p>
+          {subtitle && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {subtitle}
+            </p>
+          )}
         </div>
         <div className="rounded-full p-3 bg-muted">
           {icon}
@@ -29,6 +35,8 @@ function MetricCard({ title, value, icon, loading = false }: MetricCardProps) {
 
 interface DashboardMetrics {
   totalUsers: number
+  managersCount: number
+  usersCount: number
   totalChatMessages: number
   activeChatUsers: number
 }
@@ -64,7 +72,8 @@ export function MetricsCards() {
     {
       title: 'Total Users',
       value: metrics ? metrics.totalUsers.toString() : '0',
-      icon: <Users className="h-6 w-6 text-blue-500" />
+      icon: <Users className="h-6 w-6 text-blue-500" />,
+      subtitle: metrics ? `managers: ${metrics.managersCount}  users: ${metrics.usersCount}` : 'managers: 0  users: 0'
     },
     {
       title: 'Chat Sessions',
@@ -78,8 +87,8 @@ export function MetricsCards() {
     return (
       <div className="grid gap-4 md:grid-cols-2">
         {metricsData.map((metric, index) => (
-          <MetricCard 
-            key={index} 
+          <MetricCard
+            key={index}
             title={metric.title}
             value="Error"
             icon={metric.icon}
@@ -92,9 +101,9 @@ export function MetricsCards() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {metricsData.map((metric, index) => (
-        <MetricCard 
-          key={index} 
-          {...metric} 
+        <MetricCard
+          key={index}
+          {...metric}
           loading={loading}
         />
       ))}

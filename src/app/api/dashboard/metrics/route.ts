@@ -57,6 +57,20 @@ export async function GET(request: NextRequest) {
     // Get total users count
     const totalUsers = await prisma.user.count();
 
+    // Get managers count (ScotAIManagers group)
+    const managersCount = await prisma.user.count({
+      where: {
+        azureAdGroup: 'ScotAIManagers'
+      }
+    });
+
+    // Get users count (ScotAIUsers group)
+    const usersCount = await prisma.user.count({
+      where: {
+        azureAdGroup: 'ScotAIUsers'
+      }
+    });
+
     // Get total chat messages count from AdminChatHistory (persistent admin copy)
     // This ensures the count doesn't decrease when users delete their chat history
     const totalChatMessages = await prisma.adminChatHistory.count();
@@ -71,10 +85,12 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       metrics: {
         totalUsers,
+        managersCount,
+        usersCount,
         totalChatMessages,
         activeChatUsers
       }

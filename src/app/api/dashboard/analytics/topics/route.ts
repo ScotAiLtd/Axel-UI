@@ -22,13 +22,13 @@ function getCurrentUser(request: NextRequest): string | null {
 }
 
 /**
- * GET /api/dashboard/analytics/topics
- * Get the latest saved analytics from database
+ * GET /api/dashboard/analytics/topics?userGroup=ScotAIManagers
+ * Get the latest saved analytics from database for specific group
  */
 export async function GET(request: NextRequest) {
   try {
     const userEmail = getCurrentUser(request);
-    
+
     if (!userEmail) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -55,8 +55,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get the latest analytics from database
+    // Get userGroup from query params
+    const { searchParams } = new URL(request.url);
+    const userGroup = searchParams.get('userGroup') || 'ScotAIManagers'; // Default to Managers
+
+    // Validate userGroup
+    if (userGroup !== 'ScotAIManagers' && userGroup !== 'ScotAIUsers') {
+      return NextResponse.json(
+        { error: 'Invalid userGroup. Must be ScotAIManagers or ScotAIUsers' },
+        { status: 400 }
+      );
+    }
+
+    // Get the latest analytics for this specific group
     const latestAnalytics = await prisma.topicsAnalytics.findFirst({
+      where: {
+        userGroup: userGroup
+      },
       orderBy: {
         createdAt: 'desc'
       }
@@ -80,6 +95,7 @@ export async function GET(request: NextRequest) {
           to: latestAnalytics.dateRangeTo.toISOString()
         },
         generatedBy: latestAnalytics.generatedBy,
+        userGroup: latestAnalytics.userGroup,
         createdAt: latestAnalytics.createdAt.toISOString()
       }
     });
@@ -96,11 +112,12 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/dashboard/analytics/topics
  * Generate AI analysis of most discussed topics from last week and save to DB
+ * Body: { userGroup: "ScotAIManagers" | "ScotAIUsers" }
  */
 export async function POST(request: NextRequest) {
   try {
     const userEmail = getCurrentUser(request);
-    
+
     if (!userEmail) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -127,7 +144,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get userGroup from request body
+    const body = await request.json();
+    const userGroup = body.userGroup || 'ScotAIManagers'; // Default to Managers
+
+    // Validate userGroup
+    if (userGroup !== 'ScotAIManagers' && userGroup !== 'ScotAIUsers') {
+      return NextResponse.json(
+        { error: 'Invalid userGroup. Must be ScotAIManagers or ScotAIUsers' },
+        { status: 400 }
+      );
+    }
+
     // Get last 7 days of user messages from AdminChatHistory
+    // FILTERED by user's azureAdGroup
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
 
@@ -136,6 +166,9 @@ export async function POST(request: NextRequest) {
         role: 'user', // Only analyze user questions, not AI responses
         createdAt: {
           gte: lastWeek
+        },
+        user: {
+          azureAdGroup: userGroup // Filter by ScotAIManagers or ScotAIUsers
         }
       },
       select: {
@@ -149,10 +182,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (userMessages.length === 0) {
+      const groupName = userGroup === 'ScotAIManagers' ? 'Managers' : 'Users';
       return NextResponse.json({
         success: true,
-        analysis: 'No user messages found in the last week to analyze.',
-        messageCount: 0
+        analysis: `No ${groupName} messages found in the last week to analyze.`,
+        messageCount: 0,
+        userGroup: userGroup
       });
     }
 
@@ -163,9 +198,10 @@ export async function POST(request: NextRequest) {
     const openaiService = new OpenAIService();
 
     // Create AI prompt for topic analysis
-    const prompt = `Analyze the following user questions from the last week and identify the 3-4 most common topics/themes. 
+    const groupName = userGroup === 'ScotAIManagers' ? 'Managers' : 'Users';
+    const prompt = `Analyze the following user questions from ${groupName} in the last week and identify the 3-4 most common topics/themes.
 
-User Questions:
+User Questions from ${groupName}:
 ${messagesContent}
 
 Please provide a brief 3-4 line summary mentioning:
@@ -186,7 +222,8 @@ Keep it concise and professional for an admin dashboard.`;
         messageCount: userMessages.length,
         dateRangeFrom: lastWeek,
         dateRangeTo: now,
-        generatedBy: userEmail
+        generatedBy: userEmail,
+        userGroup: userGroup
       }
     });
 
@@ -201,6 +238,7 @@ Keep it concise and professional for an admin dashboard.`;
           to: savedAnalytics.dateRangeTo.toISOString()
         },
         generatedBy: savedAnalytics.generatedBy,
+        userGroup: savedAnalytics.userGroup,
         createdAt: savedAnalytics.createdAt.toISOString()
       }
     });

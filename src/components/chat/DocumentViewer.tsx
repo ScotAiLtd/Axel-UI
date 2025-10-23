@@ -1,11 +1,48 @@
 "use client"
 
-import { useState } from "react"
-import { Expand, RefreshCw } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Expand, RefreshCw, Loader2 } from "lucide-react"
 import Image from "next/image"
 
 export default function DocumentViewer() {
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [documentUrl, setDocumentUrl] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch user profile to determine which document to show
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/user/profile')
+
+        if (response.ok) {
+          const data = await response.json()
+          const azureAdGroup = data.user.azureAdGroup
+
+          // Determine document URL based on Azure AD group
+          if (azureAdGroup === 'ScotAIUsers') {
+            // Show Policy Guide for ScotAIUsers
+            setDocumentUrl('https://easternholdings.pagetiger.com/policy-guide/december-2023')
+          } else {
+            // Show People Management Toolkit for ScotAIManagers or null
+            setDocumentUrl('https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF')
+          }
+        } else {
+          // Default to People Management Toolkit if profile fetch fails
+          setDocumentUrl('https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF')
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error)
+        // Default to People Management Toolkit on error
+        setDocumentUrl('https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUserProfile()
+  }, [])
 
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen)
@@ -33,14 +70,14 @@ export default function DocumentViewer() {
           <h2 className="text-sm sm:text-base md:text-lg font-semibold text-primary truncate">Eastern Western Motor Group - People Management Toolkit</h2>
         </div>
         <div className="header-controls flex gap-2 flex-shrink-0">
-          <button 
+          <button
             onClick={refreshDocument}
             className="bg-transparent border-none text-muted-foreground hover:bg-secondary hover:text-primary p-2 rounded transition-all"
             title="Refresh document"
           >
             <RefreshCw size={18} />
           </button>
-          <button 
+          <button
             onClick={toggleFullscreen}
             className="bg-transparent border-none text-muted-foreground hover:bg-secondary hover:text-primary p-2 rounded transition-all"
             title="Toggle fullscreen"
@@ -50,14 +87,23 @@ export default function DocumentViewer() {
         </div>
       </div>
       <div className="document-content flex-1 overflow-hidden bg-white">
-        <object
-          id="document-viewer"
-          data="https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF"
-          className="w-full h-full border-none"
-          type="text/html"
-        >
-          <p>Please login to view the document.</p>
-        </object>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 size={24} className="animate-spin" />
+              <span>Loading document...</span>
+            </div>
+          </div>
+        ) : (
+          <object
+            id="document-viewer"
+            data={documentUrl}
+            className="w-full h-full border-none"
+            type="text/html"
+          >
+            <p>Please login to view the document.</p>
+          </object>
+        )}
       </div>
     </div>
   )

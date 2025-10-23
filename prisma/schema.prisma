@@ -48,6 +48,7 @@ model User {
   emailVerified DateTime?
   image         String?
   role          UserRole  @default(USER)
+  azureAdGroup  String?   // Tracks Azure AD group: "ScotAIManagers" or "ScotAIUsers"
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
@@ -135,6 +136,7 @@ model TopicsAnalytics {
   dateRangeFrom DateTime
   dateRangeTo   DateTime
   generatedBy   String   // Admin user email who generated it
+  userGroup     String   @default("ScotAIManagers") // "ScotAIManagers" or "ScotAIUsers" - which group this analysis is for
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 } 

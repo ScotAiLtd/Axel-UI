@@ -15,11 +15,13 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-full overflow-hidden" id="chat-container">
-      <div className="w-full md:w-[65%] h-1/2 md:h-full md:border-r border-border order-1 md:order-1 overflow-auto">
+      {/* Hide DocumentViewer on mobile, show on desktop */}
+      <div className="hidden md:block md:w-[65%] md:h-full md:border-r border-border overflow-auto">
         <DocumentViewer />
       </div>
-      
-      <div className="w-full md:w-[35%] h-1/2 md:h-full flex-shrink-0 order-2 md:order-2 border-t md:border-t-0 border-border overflow-hidden">
+
+      {/* Chat takes full screen on mobile, 35% width on desktop */}
+      <div className="w-full md:w-[35%] h-full flex-shrink-0 overflow-hidden">
         <ChatInterface />
       </div>
     </div>

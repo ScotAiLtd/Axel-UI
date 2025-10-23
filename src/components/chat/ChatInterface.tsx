@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Expand, Trash, Send, Loader2, AlertCircle, Copy, Check, Mic, MicOff, LogOut, History, X, Menu, Settings, Activity, MessageSquare } from "lucide-react"
+import { Trash, Send, Loader2, AlertCircle, Copy, Check, Mic, MicOff, LogOut, History, X, Menu, Settings, Activity, MessageSquare } from "lucide-react"
 import { Message, ChatRequest, ChatResponse, ApiErrorResponse } from "@/types/chat"
 import { UserRole } from "@/types/user"
 import ReactMarkdown from 'react-markdown'
@@ -208,7 +208,6 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
   const [inputValue, setInputValue] = useState("")
-  const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null)
@@ -479,11 +478,6 @@ export default function ChatInterface() {
       console.error('Failed to copy text: ', err)
     })
   }
-  
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen)
-    document.body.classList.toggle('chat-fullscreen')
-  }
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -672,7 +666,7 @@ export default function ChatInterface() {
   }
 
   return (
-    <div className={`chat-panel flex flex-col h-full w-full ${isFullscreen ? "fixed inset-0 z-50" : ""}`}>
+    <div className="chat-panel flex flex-col h-full w-full">
       <div className="panel-header flex justify-between items-center p-1 sm:p-2 bg-white border-b border-border z-10">
       
         <div className="w-16 h-12 relative overflow-hidden flex items-center">
@@ -691,20 +685,13 @@ export default function ChatInterface() {
           >
             <LogOut size={18} />
           </button>
-          <button 
+          <button
             onClick={clearChat}
             className="bg-transparent border-none text-muted-foreground hover:bg-secondary hover:text-primary p-2 rounded transition-all"
             title="Clear conversation"
             disabled={isLoading}
           >
             <Trash size={18} />
-          </button>
-         <button
-            onClick={toggleFullscreen}
-            className="bg-transparent border-none text-muted-foreground hover:bg-secondary hover:text-primary p-2 rounded transition-all md:hidden"
-            title="Toggle fullscreen"
-          >
-            <Expand size={18} />
           </button>
         </div>
       </div>
