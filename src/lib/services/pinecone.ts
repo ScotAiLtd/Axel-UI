@@ -44,9 +44,6 @@ export class PineconeService {
       .replace(/\s*&\s*/g, ' & ')
       .replace(/\s*-\s*/g, ' - ')
 
-      // Remove standalone single characters that are likely OCR noise
-      .replace(/\b[a-zA-Z]\b(?!\s[a-zA-Z]\b)/g, '')
-
       // Clean up any remaining multiple spaces
       .replace(/\s+/g, ' ')
       .trim();
@@ -115,29 +112,24 @@ export class PineconeService {
       console.log(`✅ Pinecone search completed. Found ${results.length} matches`);
       console.log('Raw results:', results);
 
-      // Transform results to DocumentSource format with actual scores and OCR cleanup
+      // Transform results to DocumentSource format (NO OCR cleanup - OCR is perfect)
       const sources: DocumentSource[] = results
         .filter(([doc, score]: [any, number]) => {
           const rawContent = doc.content || doc.metadata?.content || '';
           const hasContent = rawContent && rawContent.trim().length > 20;
-          const goodScore = score >= 0.5; 
-          const validChunk = this.isValidChunk(rawContent);
+          const goodScore = score >= 0.5;
 
-          return hasContent && goodScore && validChunk;
+          return hasContent && goodScore;
         })
         .map(([result, score]: [any, number], index: number) => {
           const rawContent = result.content || result.metadata?.content || '';
 
-          // Apply OCR cleanup
-          const cleanedContent = this.cleanOCRText(rawContent);
-
           console.log(`📊 Result ${index + 1}: Score ${score.toFixed(3)}`);
-          console.log(`   Raw Preview: ${rawContent.substring(0, 100)}${rawContent.length > 100 ? '...' : ''}`);
-          console.log(`   Clean Preview: ${cleanedContent.substring(0, 100)}${cleanedContent.length > 100 ? '...' : ''}`);
+          console.log(`   Preview: ${rawContent.substring(0, 100)}${rawContent.length > 100 ? '...' : ''}`);
           console.log(`   Metadata:`, result.metadata);
 
           return {
-            content: cleanedContent,
+            content: rawContent,
             metadata: result.metadata || {},
             score: score,
           };
