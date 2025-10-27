@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ChatService } from '@/lib/services/chat';
 import { ChatRequest, ApiErrorResponse } from '@/types/chat';
-import { validateEnv } from '@/config/env';
+import { validateEnv, getPineconeNamespace } from '@/config/env';
 import { streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { prisma } from '@/lib/db';
@@ -67,18 +67,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get last conversation pair (previous user message + AI response)
+    // Get last conversation pair (previous user message + AI response) and user's Azure AD group
     const authCookie = request.cookies.get('axle-auth');
     const userCookie = request.cookies.get('axle-user');
     let previousMessages: Array<{role: 'user' | 'assistant', content: string}> = [];
+    let userAzureAdGroup: string | null = null;
 
     if (authCookie?.value === 'authenticated' && userCookie?.value) {
       try {
         const user = await prisma.user.findUnique({
-          where: { email: userCookie.value }
+          where: { email: userCookie.value },
+          select: {
+            id: true,
+            azureAdGroup: true
+          }
         });
 
         if (user) {
+          // Store the user's Azure AD group for namespace selection
+          userAzureAdGroup = user.azureAdGroup;
+
           const lastMessages = await prisma.chatMessage.findMany({
             where: { userId: user.id },
             orderBy: { createdAt: 'desc' },
@@ -97,12 +105,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get context and build messages
+    // Determine namespace based on user's Azure AD group
+    // ScotAIUsers → 'axel-1', ScotAIManagers or null → 'axel-2'
+    const namespace = body.namespace || getPineconeNamespace(userAzureAdGroup);
+    console.log(`🔐 User Azure AD Group: ${userAzureAdGroup || 'null'} → Namespace: ${namespace}`);
+
+    // Get context and build messages with user's Azure AD group
     const { messages, model } = await service.buildMessagesForStreaming(
       sanitizedMessage,
       language,
-      body.namespace,
-      previousMessages
+      namespace,
+      previousMessages,
+      userAzureAdGroup
     );
 
     // Create streaming response using AI SDK

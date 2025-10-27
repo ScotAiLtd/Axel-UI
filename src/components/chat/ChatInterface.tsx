@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Trash, Send, Loader2, AlertCircle, Copy, Check, Mic, MicOff, LogOut, History, X, Menu, Settings, Activity, MessageSquare } from "lucide-react"
+import { Trash, Send, Loader2, AlertCircle, Copy, Check, Mic, MicOff, LogOut, History, X, Menu, Settings, Activity, MessageSquare, ExternalLink } from "lucide-react"
 import { Message, ChatRequest, ChatResponse, ApiErrorResponse } from "@/types/chat"
 import { UserRole } from "@/types/user"
 import ReactMarkdown from 'react-markdown'
@@ -220,6 +220,7 @@ export default function ChatInterface() {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false)
   const [userRole, setUserRole] = useState<UserRole | null>(null)
   const [isLoadingUser, setIsLoadingUser] = useState(true)
+  const [userAzureAdGroup, setUserAzureAdGroup] = useState<string | null>(null)
   const [changelogEntries, setChangelogEntries] = useState<ChangelogEntry[]>([])
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -279,10 +280,11 @@ export default function ChatInterface() {
     try {
       setIsLoadingUser(true)
       const response = await fetch('/api/user/profile')
-      
+
       if (response.ok) {
         const data = await response.json()
         setUserRole(data.user.role as UserRole)
+        setUserAzureAdGroup(data.user.azureAdGroup)
       }
     } catch (error) {
       console.error('Error loading user profile:', error)
@@ -665,6 +667,21 @@ export default function ChatInterface() {
     window.location.href = '/api/auth/logout'
   }
 
+  const openDocumentInNewTab = () => {
+    // Determine document URL based on Azure AD group
+    let documentUrl = ''
+
+    if (userAzureAdGroup === 'ScotAIUsers') {
+      // Policy Guide for ScotAIUsers
+      documentUrl = 'https://easternholdings.pagetiger.com/policy-guide/december-2023'
+    } else {
+      // People Management Toolkit for ScotAIManagers or null
+      documentUrl = 'https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF'
+    }
+
+    window.open(documentUrl, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <div className="chat-panel flex flex-col h-full w-full">
       <div className="panel-header flex justify-between items-center p-1 sm:p-2 bg-white border-b border-border z-10">
@@ -678,7 +695,15 @@ export default function ChatInterface() {
         </div>
 
         <div className="header-controls flex gap-2">
-          <button 
+          {/* Document link button - only visible on mobile (below md breakpoint) */}
+          <button
+            onClick={openDocumentInNewTab}
+            className="md:hidden bg-transparent border-none text-muted-foreground hover:bg-blue-50 hover:text-blue-600 p-2 rounded transition-all"
+            title={userAzureAdGroup === 'ScotAIUsers' ? 'Open Policy Guide' : 'Open People Management Toolkit'}
+          >
+            <ExternalLink size={18} />
+          </button>
+          <button
             onClick={handleLogout}
             className="bg-transparent border-none text-muted-foreground hover:bg-red-50 hover:text-red-600 p-2 rounded transition-all"
             title="Logout"

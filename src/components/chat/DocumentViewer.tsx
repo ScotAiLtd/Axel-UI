@@ -7,6 +7,7 @@ import Image from "next/image"
 export default function DocumentViewer() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [documentUrl, setDocumentUrl] = useState<string>("")
+  const [documentTitle, setDocumentTitle] = useState<string>("Eastern Western Motor Group - People Management Toolkit")
   const [isLoading, setIsLoading] = useState(true)
 
   // Fetch user profile to determine which document to show
@@ -20,22 +21,26 @@ export default function DocumentViewer() {
           const data = await response.json()
           const azureAdGroup = data.user.azureAdGroup
 
-          // Determine document URL based on Azure AD group
+          // Determine document URL and title based on Azure AD group
           if (azureAdGroup === 'ScotAIUsers') {
             // Show Policy Guide for ScotAIUsers
             setDocumentUrl('https://easternholdings.pagetiger.com/policy-guide/december-2023')
+            setDocumentTitle('Eastern Western Motor Group - Policy Guide')
           } else {
             // Show People Management Toolkit for ScotAIManagers or null
             setDocumentUrl('https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF')
+            setDocumentTitle('Eastern Western Motor Group - People Management Toolkit')
           }
         } else {
           // Default to People Management Toolkit if profile fetch fails
           setDocumentUrl('https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF')
+          setDocumentTitle('Eastern Western Motor Group - People Management Toolkit')
         }
       } catch (error) {
         console.error('Error fetching user profile:', error)
         // Default to People Management Toolkit on error
         setDocumentUrl('https://easternholdings.pagetiger.com/your-people-management-toolkit/1/?ptit=57928447FFC730AC383CF')
+        setDocumentTitle('Eastern Western Motor Group - People Management Toolkit')
       } finally {
         setIsLoading(false)
       }
@@ -67,7 +72,7 @@ export default function DocumentViewer() {
             height={120}
             className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 object-contain flex-shrink-0"
           />
-          <h2 className="text-sm sm:text-base md:text-lg font-semibold text-primary truncate">Eastern Western Motor Group - People Management Toolkit</h2>
+          <h2 className="text-sm sm:text-base md:text-lg font-semibold text-primary truncate">{documentTitle}</h2>
         </div>
         <div className="header-controls flex gap-2 flex-shrink-0">
           <button
