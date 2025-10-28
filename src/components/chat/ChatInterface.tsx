@@ -684,7 +684,7 @@ export default function ChatInterface() {
 
   return (
     <div className="chat-panel flex flex-col h-full w-full">
-      <div className="panel-header flex justify-between items-center p-1 sm:p-2 bg-white border-b border-border z-10">
+      <div className="panel-header sticky top-0 flex justify-between items-center p-1 sm:p-2 bg-white border-b border-border z-20">
       
         <div className="w-16 h-12 relative overflow-hidden flex items-center">
           <img 
@@ -730,7 +730,7 @@ export default function ChatInterface() {
         </div>
       )}
 
-      <div className="chat-messages flex-1 p-2 sm:p-4 overflow-y-auto bg-white flex flex-col gap-3 sm:gap-4">
+      <div className="chat-messages flex-1 p-2 sm:p-4 overflow-y-auto bg-white flex flex-col gap-3 sm:gap-4" style={{ overflowY: 'auto', flex: '1 1 auto' }}>
         {isLoadingHistory ? (
           <div className="flex items-center justify-center py-8">
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -854,8 +854,8 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Language Selector - Sticky positioned above input */}
-      <div className="sticky bottom-20 z-10 flex justify-end px-4 sm:px-6 lg:px-8 mb-2">
+      <div className="sticky bottom-0 bg-white z-10">
+      <div className="flex justify-end px-4 sm:px-6 lg:px-8 pt-2 pb-2">
         <div className="relative">
           <button
             onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
@@ -952,7 +952,6 @@ export default function ChatInterface() {
         </div>
       </div>
 
-      {/* Combined Footer with Menu Button */}
       <div className="relative flex items-center justify-between px-4 py-1 border-t border-border">
         <div className="flex-1 text-center text-[8px] sm:text-[9px] text-muted-foreground">
           <div className="text-gray-500 mb-0.5">
@@ -1026,8 +1025,8 @@ export default function ChatInterface() {
          </div>
        )}
       </div>
+      </div>
 
-             {/* Changelog Modal */}
        {isChangelogOpen && (
          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
@@ -1086,7 +1085,6 @@ export default function ChatInterface() {
          </div>
        )}
 
-       {/* Axle Status Modal */}
        {isStatusOpen && (
          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
@@ -1154,7 +1152,6 @@ export default function ChatInterface() {
          </div>
        )}
 
-       {/* Feedback Modal */}
        <FeedbackModal 
          isOpen={isFeedbackOpen}
          onClose={() => setIsFeedbackOpen(false)}
