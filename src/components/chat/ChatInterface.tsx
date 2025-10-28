@@ -683,8 +683,8 @@ export default function ChatInterface() {
   }
 
   return (
-    <div className="chat-panel flex flex-col h-full w-full">
-      <div className="panel-header sticky top-0 flex justify-between items-center p-1 sm:p-2 bg-white border-b border-border z-20">
+    <div className="chat-panel flex flex-col h-full w-full overflow-hidden">
+      <div className="panel-header flex-shrink-0 flex justify-between items-center p-1 sm:p-2 bg-white border-b border-border z-20">
       
         <div className="w-16 h-12 relative overflow-hidden flex items-center">
           <img 
@@ -730,7 +730,7 @@ export default function ChatInterface() {
         </div>
       )}
 
-      <div className="chat-messages flex-1 p-2 sm:p-4 overflow-y-auto bg-white flex flex-col gap-3 sm:gap-4" style={{ overflowY: 'auto', flex: '1 1 auto' }}>
+      <div className="chat-messages flex-1 p-2 sm:p-4 overflow-y-auto bg-white flex flex-col gap-3 sm:gap-4">
         {isLoadingHistory ? (
           <div className="flex items-center justify-center py-8">
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -854,7 +854,7 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="sticky bottom-0 bg-white z-10">
+      <div className="flex-shrink-0 bg-white">
       <div className="flex justify-end px-4 sm:px-6 lg:px-8 pt-2 pb-2">
         <div className="relative">
           <button
@@ -900,7 +900,7 @@ export default function ChatInterface() {
         </div>
       </div>
 
-      <div className="chat-input-area flex p-3 sm:p-4 bg-white border-t border-border">
+      <div className="chat-input-area flex-shrink-0 flex p-3 sm:p-4 bg-white border-t border-border">
         <div className="relative w-full">
           <textarea
             ref={textareaRef}
@@ -952,7 +952,7 @@ export default function ChatInterface() {
         </div>
       </div>
 
-      <div className="relative flex items-center justify-between px-4 py-1 border-t border-border">
+      <div className="relative flex-shrink-0 flex items-center justify-between px-4 py-1 border-t border-border">
         <div className="flex-1 text-center text-[8px] sm:text-[9px] text-muted-foreground">
           <div className="text-gray-500 mb-0.5">
             Axle can make mistakes. Please double-check the responses.
