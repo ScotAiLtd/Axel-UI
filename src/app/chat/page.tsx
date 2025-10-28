@@ -14,8 +14,7 @@ export default function ChatPage() {
   if (!isMounted) return null
 
   return (
-    <div className="flex flex-col md:flex-row h-screen w-full overflow-hidden" id="chat-container">
-      {/* Hide DocumentViewer on mobile, show on desktop */}
+    <div className="flex flex-col md:flex-row w-full overflow-hidden h-screen" style={{ height: '100dvh' }} id="chat-container">
       <div className="hidden md:block md:w-[65%] md:h-full md:border-r border-border overflow-auto">
         <DocumentViewer />
       </div>
