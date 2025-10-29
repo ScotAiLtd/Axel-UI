@@ -106,7 +106,17 @@ export default function DocumentViewer() {
             className="w-full h-full border-none"
             type="text/html"
           >
-            <p>Please login to view the document.</p>
+            <p>
+              Please login to view the document.{" "}
+              <a
+                href={documentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline"
+              >
+                Login here
+              </a>
+            </p>
           </object>
         )}
       </div>
