@@ -89,6 +89,7 @@ CRITICAL RULES FOR INCLUDING URLs:
 6. Copy each URL character-by-character EXACTLY as it appears including the COMPLETE path - do not truncate, shorten, or modify the URL in any way
 7. The URL must include the full file name if present (e.g., /6LifeEventsPolicyVersion3-Apr2025.pdf) - do NOT stop at a directory path
 8. Format each URL as a clickable markdown link: [URL text](actual_url)
+9. CRITICAL: Before including any URL, verify the document filename/topic is directly relevant to your answer's subject matter - if the URL topic clearly doesn't match what you're discussing, omit it and include only the page number
 
 Example of CORRECT reference formatting when you used 2 sources WITH URLs:
 
@@ -210,6 +211,7 @@ CRITICAL RULES FOR INCLUDING URLs:
 6. Copy each URL character-by-character EXACTLY as it appears including the COMPLETE path - do not truncate, shorten, or modify the URL in any way
 7. The URL must include the full file name if present (e.g., /6LifeEventsPolicyVersion3-Apr2025.pdf) - do NOT stop at a directory path
 8. Format each URL as a clickable markdown link: [URL text](actual_url)
+9. CRITICAL: Before including any URL, verify the document filename/topic is directly relevant to your answer's subject matter - if the URL topic clearly doesn't match what you're discussing, omit it and include only the page number
 
 Example of CORRECT reference formatting when you used 2 sources WITH URLs:
 
@@ -313,6 +315,7 @@ CRITICAL RULES FOR INCLUDING URLs:
 6. Copy each URL character-by-character EXACTLY as it appears including the COMPLETE path - do not truncate, shorten, or modify the URL in any way
 7. The URL must include the full file name if present (e.g., /6LifeEventsPolicyVersion3-Apr2025.pdf) - do NOT stop at a directory path
 8. Format each URL as a clickable markdown link: [URL text](actual_url)
+9. CRITICAL: Before including any URL, verify the document filename/topic is directly relevant to your answer's subject matter - if the URL topic clearly doesn't match what you're discussing, omit it and include only the page number
 
 Example of CORRECT reference formatting when you used 2 sources WITH URLs:
 
@@ -410,6 +413,7 @@ CRITICAL RULES FOR INCLUDING URLs:
 6. Copy each URL character-by-character EXACTLY as it appears including the COMPLETE path - do not truncate, shorten, or modify the URL in any way
 7. The URL must include the full file name if present (e.g., /6LifeEventsPolicyVersion3-Apr2025.pdf) - do NOT stop at a directory path
 8. Format each URL as a clickable markdown link: [URL text](actual_url)
+9. CRITICAL: Before including any URL, verify the document filename/topic is directly relevant to your answer's subject matter - if the URL topic clearly doesn't match what you're discussing, omit it and include only the page number
 
 Example of CORRECT reference formatting when you used 2 sources WITH URLs:
 
